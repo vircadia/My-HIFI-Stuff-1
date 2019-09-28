@@ -9,4 +9,4 @@ Current Scripts
 
 * dropNet.js
 
-dropNet.js
+Meant to share web entities with others running the script Wherever You Are in high fidelity VR. 
