@@ -53,11 +53,12 @@ function onMessageReceived(channel, message, sender, localOnly) {
             }, "local");
             oldUuid = entityID;
         }
-        MyAvatar.sessionUUIDChanged.connect(function () {
-            Entities.deleteEntity(oldUuid);
-        });
     }
 }
+
+MyAvatar.sessionUUIDChanged.connect(function () {
+    Entities.deleteEntity(oldUuid);
+});
 
 Messages.subscribe("webMe");
 Messages.messageReceived.connect(onMessageReceived);
