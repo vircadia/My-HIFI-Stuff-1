@@ -1,0 +1,118 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>HIFI Video Sync</title>
+</head>
+
+<body>
+    <style>
+        #v1 {
+            width: 100%;
+            height: auto;
+        }
+    </style>
+    <button onclick="chooseVideo()" type="button">Choose Video</button>
+    <button onclick="sync()" type="button">Sync</button><br>
+    <div id="video-container">
+        <video id="v1" controls autoplay>
+            <source id="mp4_src" src=" " type="video/webm">
+        </video>
+    </div>
+
+    <script language="JavaScript" type="text/javascript">
+
+
+        var myTimeStamp = Date.now();
+
+        window.onload = function () {
+            var v1 = document.getElementById('v1');
+            v1.addEventListener("play", function () {
+                var readyEvent = {
+                    "action": "play",
+                    "timeStamp": v1.currentTime,
+                    "videoUrl": person,
+                    "nowVideo": "false",
+                    "check": myTimeStamp
+                };
+                EventBridge.emitWebEvent(JSON.stringify(readyEvent));
+
+            });
+
+            v1.addEventListener("pause", function () {
+                var readyEvent = {
+                    "action": "pause",
+                    "timeStamp": v1.currentTime,
+                    "videoUrl": person,
+                    "nowVideo": "false",
+                    "check": myTimeStamp
+                };
+                EventBridge.emitWebEvent(JSON.stringify(readyEvent));
+
+            });
+
+            v1.addEventListener("seeking", function () {
+            });
+
+            v1.addEventListener("seeked", function () {
+            });
+
+            var syncbutton = document.getElementById('sync2vid');
+        }
+
+        function sync() {
+            var readyEvent = {
+                "action": "sync",
+                "timeStamp": v1.currentTime,
+                "videoUrl": person,
+                "nowVideo": "false",
+                "check": myTimeStamp
+            };
+            EventBridge.emitWebEvent(JSON.stringify(readyEvent));
+        }
+
+        function chooseVideo() {
+            person = prompt("Please enter your video url", " ");
+            if (person != null) {
+                document.getElementById("v1").src = person;
+                var readyEvent = {
+                    "action": "now",
+                    "timeStamp": v1.currentTime,
+                    "videoUrl": person,
+                    "nowVideo": "false",
+                    "check": myTimeStamp
+                };
+                EventBridge.emitWebEvent(JSON.stringify(readyEvent));
+            }
+
+        }
+
+            EventBridge.scriptEventReceived.connect(function (message) {
+
+                var messageData = JSON.parse(message);
+                if (messageData.check == myTimeStamp) {
+                } else if (messageData.action == "play") {
+                    document.getElementById('v1').play();
+                    document.getElementById('v1').currentTime = messageData.timeStamp;
+                } else if (messageData.action == "pause") {
+                    document.getElementById('v1').pause();
+                } else if (messageData.action == "now") {
+                    document.getElementById("v1").src = messageData.videoUrl;
+                } else if (messageData.action == "sync") {
+                    document.getElementById("v1").src = messageData.videoUrl;
+                    document.getElementById('v1').currentTime = messageData.timeStamp;
+                } else {
+                    document.getElementById("v1").src = messageData.videoUrl;
+                }
+            });
+
+            vid = document.getElementById("myVideo");
+            vid.currentTime = 5;
+
+            var person ;
+
+    </script>
+
+</body>
+
+</html>
