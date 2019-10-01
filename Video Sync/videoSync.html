@@ -7,13 +7,7 @@
 
 <body>
     <style>
-        #video-container {
-            width: 100%;
-            height: auto;
-        }
-
         #v1 {
-            float: 100%;
             width: 100%;
             height: auto;
         }
@@ -28,20 +22,33 @@
 
     <script language="JavaScript" type="text/javascript">
 
-        var firstPlay = true;
+
+        var myTimeStamp = Date.now();
+
         window.onload = function () {
             var v1 = document.getElementById('v1');
-
             v1.addEventListener("play", function () {
-                if (firstPlay == true) {
-                    firstPlay = false;
-                } else {
-                    play();
-                }
+                var readyEvent = {
+                    "action": "play",
+                    "timeStamp": v1.currentTime,
+                    "videoUrl": person,
+                    "nowVideo": "false",
+                    "check": myTimeStamp
+                };
+                EventBridge.emitWebEvent(JSON.stringify(readyEvent));
+
             });
 
             v1.addEventListener("pause", function () {
-                pause();
+                var readyEvent = {
+                    "action": "pause",
+                    "timeStamp": v1.currentTime,
+                    "videoUrl": person,
+                    "nowVideo": "false",
+                    "check": myTimeStamp
+                };
+                EventBridge.emitWebEvent(JSON.stringify(readyEvent));
+
             });
 
             v1.addEventListener("seeking", function () {
@@ -53,119 +60,59 @@
             var syncbutton = document.getElementById('sync2vid');
         }
 
-
-        var n;
-        var timeStamp;
-
-        function play() {
-            console.log("document ready");
-            n = Date.now();
+        function sync() {
             var readyEvent = {
-                "action": "play",
+                "action": "sync",
                 "timeStamp": v1.currentTime,
                 "videoUrl": person,
                 "nowVideo": "false",
-                "check": n
+                "check": myTimeStamp
             };
             EventBridge.emitWebEvent(JSON.stringify(readyEvent));
-            $(".gemstone-button").click(function () {
-                console.log(this.value + " button click");
-                var clickEvent = {
-                    "type": "click",
-                    "data": this.value
-                };
-                EventBridge.emitWebEvent(JSON.stringify(clickEvent));
-            });
         }
 
-        function pause() {
-            console.log("document ready");
-            n = Date.now();
-            var readyEvent = {
-                "action": "pause",
-                "timeStamp": v1.currentTime,
-                "videoUrl": person,
-                "nowVideo": "false",
-                "check": n
-            };
-            EventBridge.emitWebEvent(JSON.stringify(readyEvent));
-            $(".gemstone-button").click(function () {
-                console.log(this.value + " button click");
-                var clickEvent = {
-                    "type": click,
-                    "data": this.value
-                };
-                EventBridge.emitWebEvent(JSON.stringify(clickEvent));
-            });
-        }
-
-        function nowVideo() {
-            console.log("document ready");
-            n = Date.now();
-            var readyEvent = {
-                "action": "pause",
-                "timeStamp": v1.currentTime,
-                "videoUrl": person,
-                "nowVideo": "true",
-                "check": n
-            };
-            EventBridge.emitWebEvent(JSON.stringify(readyEvent));
-            $(".gemstone-button").click(function () {
-                console.log(this.value + " button click");
-                var clickEvent = {
-                    "type": click,
-                    "data": this.value
-                };
-                EventBridge.emitWebEvent(JSON.stringify(clickEvent));
-            });
-        }
-
-        EventBridge.scriptEventReceived.connect(function (message) {
-
-            var messageData = JSON.parse(message);
-            action = (JSON.stringify(messageData.action));
-            document.getElementById('v1').currentTime = (JSON.stringify(messageData.timeStamp));
-            nB = n + 500;
-            if (messageData.check <= nB) {
-            } else {
-                if (action.replace(/\"/g, "") == "pause") {
-                    document.getElementById('v1').pause();
-                    if (messageData.nowVideo == "true") {
-                        firstPlay = true;
-                        vid.src = messageData.videoUrl;
-                        vid.load();
-                        person = messageData.videoUrl;
-                    }
-                } else {
-                    document.getElementById('v1').play();
-                }
-            }
-            (JSON.stringify(messageData.action));
-        });
-
-        var person = " ";
-        var vid = document.getElementById("v1");
         function chooseVideo() {
             person = prompt("Please enter your video url", " ");
-            vid.src = person;
-            vid.load();
-            nowVideo();
+            if (person != null) {
+                document.getElementById("v1").src = person;
+                var readyEvent = {
+                    "action": "now",
+                    "timeStamp": v1.currentTime,
+                    "videoUrl": person,
+                    "nowVideo": "false",
+                    "check": myTimeStamp
+                };
+                EventBridge.emitWebEvent(JSON.stringify(readyEvent));
+            }
+
         }
 
-        function sync() {
-            console.log("document ready");
-            n = Date.now();
-            var readyEvent = {
-                "action": "pause",
-                "timeStamp": v1.currentTime,
-                "videoUrl": person,
-                "nowVideo": "true",
-                "check": n
-            };
-            EventBridge.emitWebEvent(JSON.stringify(readyEvent));
-        }
+            EventBridge.scriptEventReceived.connect(function (message) {
+
+                var messageData = JSON.parse(message);
+                if (messageData.check == myTimeStamp) {
+                } else if (messageData.action == "play") {
+                    document.getElementById('v1').play();
+                    document.getElementById('v1').currentTime = messageData.timeStamp;
+                } else if (messageData.action == "pause") {
+                    document.getElementById('v1').pause();
+                } else if (messageData.action == "now") {
+                    document.getElementById("v1").src = messageData.videoUrl;
+                } else if (messageData.action == "sync") {
+                    document.getElementById("v1").src = messageData.videoUrl;
+                    document.getElementById('v1').currentTime = messageData.timeStamp;
+                } else {
+                    document.getElementById("v1").src = messageData.videoUrl;
+                }
+            });
+
+            vid = document.getElementById("myVideo");
+            vid.currentTime = 5;
+
+            var person ;
 
     </script>
+
 </body>
 
 </html>
