@@ -25,12 +25,7 @@ var tablet = Tablet.getTablet("com.highfidelity.interface.tablet.system");
             return;
         }
         tablet.emitScriptEvent(message);
-        handleTransmitChatMessage();
     }
-
-    function handleTransmitChatMessage(avatarID, displayName, message, data) {
-    }
-
 
     tablet.webEventReceived.connect(onWebEventReceived);
 
