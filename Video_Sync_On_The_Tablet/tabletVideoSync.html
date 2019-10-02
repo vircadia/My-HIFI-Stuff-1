@@ -98,9 +98,11 @@
                     document.getElementById('v1').pause();
                 } else if (messageData.action == "now") {
                     document.getElementById("v1").src = messageData.videoUrl;
+                    person = messageData.videoUrl;
                 } else if (messageData.action == "sync") {
                     document.getElementById("v1").src = messageData.videoUrl;
                     document.getElementById('v1').currentTime = messageData.timeStamp;
+                    person = messageData.videoUrl;
                 } else {
                     document.getElementById("v1").src = messageData.videoUrl;
                 }
