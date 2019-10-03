@@ -15,39 +15,50 @@
     <button onclick="chooseVideo()" type="button">Choose Video</button>
     <button onclick="sync()" type="button">Sync</button><br>
     <div id="video-container">
-        <video id="v1" controls autoplay>
+        <video id="v1" poster="joinIn.gif" controls autoplay>
             <source id="mp4_src" src=" " type="video/webm">
         </video>
     </div>
 
     <script language="JavaScript" type="text/javascript">
 
-
+        var person = "http://";
         var myTimeStamp = Date.now();
+        var firstTime = "yes";
 
         window.onload = function () {
             var v1 = document.getElementById('v1');
             v1.addEventListener("play", function () {
-                var readyEvent = {
-                    "action": "play",
-                    "timeStamp": v1.currentTime,
-                    "videoUrl": person,
-                    "nowVideo": "false",
-                    "check": myTimeStamp
-                };
-                EventBridge.emitWebEvent(JSON.stringify(readyEvent));
+                if (firstTime == "yes") {
+                    document.getElementById("v1").poster = "requestSync.gif";
+                    firstTime = "no";
+                } else {
+                    var readyEvent = {
+                        "action": "play",
+                        "timeStamp": v1.currentTime,
+                        "videoUrl": person,
+                        "nowVideo": "false",
+                        "check": myTimeStamp
+                    };
+                    EventBridge.emitWebEvent(JSON.stringify(readyEvent));
+                }
 
             });
 
             v1.addEventListener("pause", function () {
-                var readyEvent = {
-                    "action": "pause",
-                    "timeStamp": v1.currentTime,
-                    "videoUrl": person,
-                    "nowVideo": "false",
-                    "check": myTimeStamp
-                };
-                EventBridge.emitWebEvent(JSON.stringify(readyEvent));
+                if (firstTime == "yes") {
+                    document.getElementById("v1").poster = "requestSync.gif";
+                    firstTime = "no";
+                } else {
+                    var readyEvent = {
+                        "action": "pause",
+                        "timeStamp": v1.currentTime,
+                        "videoUrl": person,
+                        "nowVideo": "false",
+                        "check": myTimeStamp
+                    };
+                    EventBridge.emitWebEvent(JSON.stringify(readyEvent));
+                }
 
             });
 
@@ -61,18 +72,21 @@
         }
 
         function sync() {
-            var readyEvent = {
-                "action": "sync",
-                "timeStamp": v1.currentTime,
-                "videoUrl": person,
-                "nowVideo": "false",
-                "check": myTimeStamp
-            };
-            EventBridge.emitWebEvent(JSON.stringify(readyEvent));
+            if (firstTime == "yes") {
+            } else {
+                var readyEvent = {
+                    "action": "sync",
+                    "timeStamp": v1.currentTime,
+                    "videoUrl": person,
+                    "nowVideo": "false",
+                    "check": myTimeStamp
+                };
+                EventBridge.emitWebEvent(JSON.stringify(readyEvent));
+            }
         }
 
         function chooseVideo() {
-            person = prompt("Please enter your video url", " ");
+            person = prompt("Please enter your video url", person);
             if (person != null) {
                 document.getElementById("v1").src = person;
                 var readyEvent = {
@@ -87,31 +101,31 @@
 
         }
 
-            EventBridge.scriptEventReceived.connect(function (message) {
+        EventBridge.scriptEventReceived.connect(function (message) {
 
-                var messageData = JSON.parse(message);
-                if (messageData.check == myTimeStamp) {
-                } else if (messageData.action == "play") {
-                    document.getElementById('v1').play();
-                    document.getElementById('v1').currentTime = messageData.timeStamp;
-                } else if (messageData.action == "pause") {
-                    document.getElementById('v1').pause();
-                } else if (messageData.action == "now") {
-                    document.getElementById("v1").src = messageData.videoUrl;
-                    person = messageData.videoUrl;
-                } else if (messageData.action == "sync") {
-                    document.getElementById("v1").src = messageData.videoUrl;
-                    document.getElementById('v1').currentTime = messageData.timeStamp;
-                    person = messageData.videoUrl;
-                } else {
-                    document.getElementById("v1").src = messageData.videoUrl;
-                }
-            });
+            var messageData = JSON.parse(message);
+            if (messageData.check == myTimeStamp) {
+            } else if (messageData.action == "play") {
+                document.getElementById('v1').play();
+                document.getElementById('v1').currentTime = messageData.timeStamp;
+            } else if (messageData.action == "pause") {
+                document.getElementById('v1').pause();
+            } else if (messageData.action == "now") {
+                document.getElementById("v1").src = messageData.videoUrl;
+                person = messageData.videoUrl;
+                firstTime = "no";
+            } else if (messageData.action == "sync") {
+                document.getElementById("v1").src = messageData.videoUrl;
+                document.getElementById('v1').currentTime = messageData.timeStamp;
+                person = messageData.videoUrl;
+                firstTime = "no";
+            } else {
+                document.getElementById("v1").src = messageData.videoUrl;
+            }
+        });
 
-            vid = document.getElementById("myVideo");
-            vid.currentTime = 5;
-
-            var person ;
+        vid = document.getElementById("myVideo");
+        vid.currentTime = 5;
 
     </script>
 
