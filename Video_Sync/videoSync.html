@@ -25,13 +25,18 @@
         var person = "http://";
         var myTimeStamp = Date.now();
         var firstTime = "yes";
+        var inCharge = "no";
+        var requestSyncWaiting;
 
         window.onload = function () {
             var v1 = document.getElementById('v1');
             v1.addEventListener("play", function () {
                 if (firstTime == "yes") {
-                    document.getElementById("v1").poster = "requestSync.gif";
-                    firstTime = "no";
+                    document.getElementById("v1").poster = "WaitingForSync.gif";
+                    requestSync();
+                    requestSyncWaiting = setTimeout(function () {
+                        document.getElementById("v1").poster = "requestSync.gif";
+                    }, 650);
                 } else {
                     var readyEvent = {
                         "action": "play",
@@ -82,12 +87,14 @@
                     "check": myTimeStamp
                 };
                 EventBridge.emitWebEvent(JSON.stringify(readyEvent));
+                inCharge = "yes";
             }
         }
 
         function chooseVideo() {
             person = prompt("Please enter your video url", person);
             if (person != null) {
+                inCharge = "yes";
                 document.getElementById("v1").src = person;
                 var readyEvent = {
                     "action": "now",
@@ -99,6 +106,13 @@
                 EventBridge.emitWebEvent(JSON.stringify(readyEvent));
             }
 
+        }
+
+        function requestSync() {
+            var readyEvent = {
+                "action": "requestSync",
+            };
+            EventBridge.emitWebEvent(JSON.stringify(readyEvent));
         }
 
         EventBridge.scriptEventReceived.connect(function (message) {
@@ -113,12 +127,21 @@
             } else if (messageData.action == "now") {
                 document.getElementById("v1").src = messageData.videoUrl;
                 person = messageData.videoUrl;
+                inCharge = "no";
                 firstTime = "no";
             } else if (messageData.action == "sync") {
                 document.getElementById("v1").src = messageData.videoUrl;
                 document.getElementById('v1').currentTime = messageData.timeStamp;
                 person = messageData.videoUrl;
                 firstTime = "no";
+                inCharge = "no";
+                clearTimeout(requestSyncWaiting);
+            } else if (messageData.action == "requestSync") {
+                if (inCharge == "yes") {
+                    setTimeout(function () {
+                        sync();
+                    }, 600);
+                }
             } else {
                 document.getElementById("v1").src = messageData.videoUrl;
             }
