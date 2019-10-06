@@ -95,6 +95,7 @@
             person = prompt("Please enter your video url", person);
             if (person != null) {
                 inCharge = "yes";
+                firstTime = "no";
                 document.getElementById("v1").src = person;
                 var readyEvent = {
                     "action": "now",
