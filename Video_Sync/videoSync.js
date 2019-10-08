@@ -2,7 +2,7 @@
     var uuid;
     var script = this;
     var pause = "og";
-    var sourceUrl = Script.resolvePath("videoSync.html");
+    var sourceUrl = Script.resolvePath("videoSync.html" + "?" + Date.now());
     script.preload = function (entityID) {
         var entity = Entities.getEntityProperties(entityID, ["position", "rotation", "dimensions"]);
         uuid = Entities.addEntity({
@@ -56,6 +56,9 @@
         if (pause == "stop") {
             print("Event is paused");
         } else {
+            messageData = JSON.parse(message);
+            print("ping time Stamp " + messageData.timeStamp);
+            stopPausEvent();
             Entities.emitScriptEvent(uuid, message);
         }
     }
