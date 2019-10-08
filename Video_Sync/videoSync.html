@@ -116,6 +116,7 @@
             EventBridge.emitWebEvent(JSON.stringify(readyEvent));
         }
 
+
         EventBridge.scriptEventReceived.connect(function (message) {
 
             var messageData = JSON.parse(message);
@@ -137,11 +138,14 @@
                 firstTime = "no";
                 inCharge = "no";
                 clearTimeout(requestSyncWaiting);
-            } else if (messageData.action == "requestSync") {
-                if (inCharge == "yes") {
-                    setTimeout(function () {
-                        sync();
-                    }, 600);
+            } else if (messageData.action == "ping") {
+                myTimeStamp = v1.currentTime;
+                ping = messageData.timeStamp;
+                x = ping + 2;
+                y = ping - 2;
+                if (x > myTimeStamp && y < myTimeStamp) {
+                } else {
+                    document.getElementById('v1').currentTime = messageData.timeStamp;
                 }
             } else {
                 document.getElementById("v1").src = messageData.videoUrl;
