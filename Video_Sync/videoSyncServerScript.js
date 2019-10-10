@@ -75,4 +75,9 @@
 
     Messages.subscribe("videoPlayOnEntity");
     Messages.messageReceived.connect(onMessageReceived);
+
+    this.unload = function() {
+        Script.clearInterval(self.intervalID);
+        Script.stop(true);
+    }
 });
