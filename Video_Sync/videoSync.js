@@ -13,7 +13,7 @@
             rotation: entity.rotation,
             dimensions: {
                 "x": 2.8344976902008057,
-                "y": 1.6094951629638672,
+                "y": 1.671199917793274,
                 "z": 0.009999999776482582
             },
             position: entity.position
