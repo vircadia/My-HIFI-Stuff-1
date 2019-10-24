@@ -65,5 +65,9 @@
 
     Messages.subscribe("videoPlayOnEntity");
     Messages.messageReceived.connect(onMessageReceived);
+    
+    script.unload = function(entityID) {
+        Messages.unsubscribe("videoPlayOnEntity");
+	}
 
 });
