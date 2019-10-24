@@ -1,6 +1,7 @@
 (function () {
     var uuid;
     var script = this;
+    var stamp = Date.now();
     var pause = "og";
     var sourceUrl = Script.resolvePath("videoSync.html" + "?" + Date.now());
     script.preload = function (entityID) {
@@ -18,28 +19,22 @@
             },
             position: entity.position
         }, "local");
-        webEvent();
+        Entities.webEventReceived.connect(onWebEvent);
     }
 
     MyAvatar.sessionUUIDChanged.connect(function () {
         Entities.deleteEntity(uuid);
     });
 
-    function webEvent() {
-        Entities.webEventReceived.connect(function (uuid, event) {
-            messageData = JSON.parse(event);
-            if (pause == "stop") {
-                print("Event is paused");
-            } else {
-                pause = "stop";
-                stopPausEvent();
-                print("timeStamp " + messageData.timeStamp);
-                print("action " + messageData.action);
-                print("videoUrl " + messageData.videoUrl);
-                print("now video " + messageData.nowVideo);
-                Messages.sendMessage("videoPlayOnEntity", event);
-            }
-        })
+    function onWebEvent(uuid, event) {
+        messageData = JSON.parse(event);
+        if (pause == "stop") {
+            print("Event is paused");
+        } else {
+            pause = "stop";
+            stopPausEvent();
+            Messages.sendMessage("videoPlayOnEntity", event);
+        }
     }
 
     function stopPausEvent() {
@@ -65,10 +60,12 @@
 
     Messages.subscribe("videoPlayOnEntity");
     Messages.messageReceived.connect(onMessageReceived);
-    
-    script.unload = function(entityID) {
+
+    script.unload = function (entityID) {
         Messages.unsubscribe("videoPlayOnEntity");
-	Entities.deleteEntity(uuid);
+        Entities.deleteEntity(uuid);
+        Messages.messageReceived.disconnect(onMessageReceived);
+        Entities.webEventReceived.disconnect(onWebEvent);
     }
 
 });
