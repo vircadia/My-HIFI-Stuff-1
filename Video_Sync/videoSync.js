@@ -68,6 +68,7 @@
     
     script.unload = function(entityID) {
         Messages.unsubscribe("videoPlayOnEntity");
-	}
+	Entities.deleteEntity(uuid);
+    }
 
 });
