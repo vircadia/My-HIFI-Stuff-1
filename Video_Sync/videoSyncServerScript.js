@@ -78,5 +78,7 @@
 
     this.unload = function() {
         Script.clearInterval(self.intervalID);
+        Messages.unsubscribe("videoPlayOnEntity");
+        Messages.messageReceived.disconnect(onMessageReceived);
     }
 });
