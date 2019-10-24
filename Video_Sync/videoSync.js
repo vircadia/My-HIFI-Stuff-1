@@ -1,7 +1,6 @@
 (function () {
     var uuid;
     var script = this;
-    var stamp = Date.now();
     var pause = "og";
     var sourceUrl = Script.resolvePath("videoSync.html" + "?" + Date.now());
     script.preload = function (entityID) {
