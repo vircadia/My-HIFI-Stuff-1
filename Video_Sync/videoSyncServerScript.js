@@ -78,6 +78,5 @@
 
     this.unload = function() {
         Script.clearInterval(self.intervalID);
-        Script.stop(true);
     }
 });
