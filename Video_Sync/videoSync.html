@@ -64,7 +64,7 @@
 
 <body>
 
-    <body bgcolor="#888888">
+    <body bgcolor="#333333">
         <button class="buttonChoose" onclick="chooseVideo()" type="button">Choose Video</button><br>
         <div id="video-container">
             <video id="v1" poster="joinIn.gif" controls autoplay>
@@ -184,12 +184,14 @@
                     inCharge = "no";
                     firstTime = "no";
                 } else if (messageData.action == "sync") {
+                    if (firstTime == "yes") {
                     document.getElementById("v1").src = messageData.videoUrl;
                     document.getElementById('v1').currentTime = messageData.timeStamp;
                     person = messageData.videoUrl;
                     firstTime = "no";
                     inCharge = "no";
                     clearTimeout(requestSyncWaiting);
+                    }
                 } else if (messageData.action == "ping") {
                     myTimeStamp = v1.currentTime;
                     ping = messageData.timeStamp;
@@ -199,8 +201,6 @@
                     } else {
                         document.getElementById('v1').currentTime = messageData.timeStamp;
                     }
-                } else {
-                    document.getElementById("v1").src = messageData.videoUrl;
                 }
             });
 
@@ -212,4 +212,3 @@
     </body>
 
 </html>
-    
