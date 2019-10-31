@@ -1,89 +1,128 @@
 (function () {
-    var uuid;
-    var script = this;
-    var pause = "og";
-    var self = this;
-    var entity;
-    var _entityID;
-    var originalEntityData;
-    var sourceUrl = Script.resolvePath("videoSync.html" + "?" + Date.now());
-    script.preload = function (entityID) {
-        entity = Entities.getEntityProperties(entityID, ["position", "rotation", "dimensions"]);
-        _entityID = entityID;
-        uuid = Entities.addEntity({
-            type: "Web",
-            dpi: 15,
-            maxFPS: 60,
-            sourceUrl: sourceUrl,
-            rotation: entity.rotation,
-            dimensions: {
-                "x": 2.8344976902008057,
-                "y": 1.671199917793274,
-                "z": 0.009999999776482582
-            },
-            position: entity.position
-        }, "local");
-        originalEntityData = entity;
-        Entities.webEventReceived.connect(onWebEvent);
-    }
-
-    MyAvatar.sessionUUIDChanged.connect(function () {
-        Entities.deleteEntity(uuid);
-    });
-
-    function onWebEvent(uuid, event) {
-        messageData = JSON.parse(event);
-        if (pause == "stop") {
-            print("Event is paused");
+    var SoundUrl = "http://192.168.0.8/javascript/beep.mp3?jhg";
+    var sound = SoundCache.getSound(SoundUrl);
+    var index = 0;
+    var position = [
+    ];
+    var timer;
+    var recOn = "off";
+    var playing = "off";
+    var timerB;
+    this.preload = function (EntityID) {
+        _entitya1 = EntityID;
+    };
+    function rec() {
+        print("rec");
+        index = 0;
+        if (sound.downloaded) {
+            playSound();
         } else {
-            pause = "stop";
-            stopPausEvent();
-            Messages.sendMessage("videoPlayOnEntity", event);
+            sound.ready.connect(onSoundReady);
         }
+        timer = Script.setInterval(function () {
+            var recordedPositions = Entities.getEntityProperties(_entitya1, ["position", "rotation"]);
+            position[index] = {};
+            position[index].position = recordedPositions.position;
+            position[index].rotation = recordedPositions.rotation;
+            index++
+            if (index == 500) {
+                print("dun");
+                Script.clearInterval(timer);
+                play();
+            }
+        }, 60);
     }
-
-    function stopPausEvent() {
-        Script.setTimeout(function () {
-            pause = "og";
-            print("go");
-        }, 500);
-    }
-
-    function onMessageReceived(channel, message, sender, localOnly) {
-        if (channel != "videoPlayOnEntity") {
-            return;
-        }
-        if (pause == "stop") {
-            print("Event is paused");
+    function play() {
+        if (sound.downloaded) {
+            playSound();
         } else {
-            messageData = JSON.parse(message);
-            print("ping time Stamp " + messageData.timeStamp);
-            stopPausEvent();
-            Entities.emitScriptEvent(uuid, message);
+            sound.ready.connect(onSoundReady);
         }
-    }
-
-    self.intervalID = Script.setInterval(function () {
-        entity = Entities.getEntityProperties(_entityID, ["position", "rotation"]);
-        if (JSON.stringify(originalEntityData.position) == JSON.stringify(entity.position) && JSON.stringify(originalEntityData.rotation) == JSON.stringify(entity.rotation)) {
-        } else {
-            Entities.editEntity(uuid, {
-                position: entity.position,
-                rotation: entity.rotation,
+        recOn = "off";
+        playing = "on";
+        index = 0;
+        timerB = Script.setInterval(function () {
+            Entities.editEntity(_entitya1, {
+                position: position[index].position,
+                rotation: position[index].rotation
             });
-            originalEntityData = entity;
+            index++
+            if (index == 500) {
+                index = 0;
+            }
+        }, 60);
+    }
+    this.clickDownOnEntity = function (_entitya1, mouseEvent) {
+        if (recOn == "off" && playing == "off") {
+            rec();
+            recOn = "on";
         }
-    }, 600);
+        if (playing == "on") {
+            Script.clearInterval(timerB);
+            Script.setTimeout(function () {
+                playing = "off";
+            }, 500);
+            if (sound.downloaded) {
+                playSound();
+            } else {
+                sound.ready.connect(onSoundReady);
+            }
+        }
+    };
+    this.startNearTrigger = function (_entitya1) {
+        if (recOn == "off" && playing == "off") {
+            rec();
+            recOn = "on";
+        }
+        if (playing == "on") {
+            Script.clearInterval(timerB);
+            Script.setTimeout(function () {
+                playing = "off";
+            }, 500);
+            if (sound.downloaded) {
+                playSound();
+            } else {
+                sound.ready.connect(onSoundReady);
+            }
+        }
+    };
+    this.startFarTrigger = function (_entitya1) {
+        if (recOn == "off" && playing == "off") {
+            rec();
+            recOn = "on";
+        }
+        if (playing == "on") {
+            Script.clearInterval(timerB);
+            Script.setTimeout(function () {
+                playing = "off";
+            }, 500);
+            if (sound.downloaded) {
+                playSound();
+            } else {
+                sound.ready.connect(onSoundReady);
+            }
+        }
+    };
 
-    Messages.subscribe("videoPlayOnEntity");
-    Messages.messageReceived.connect(onMessageReceived);
+    function playSound() {
+        var injectorOptions = {
+            position: MyAvatar.position
+        };
+        var injector = Audio.playSound(sound, injectorOptions);
+    }
 
-    script.unload = function (entityID) {
-        Messages.unsubscribe("videoPlayOnEntity");
-        Entities.deleteEntity(uuid);
-        Messages.messageReceived.disconnect(onMessageReceived);
-        Entities.webEventReceived.disconnect(onWebEvent);
-        Script.clearInterval(self.intervalID);
+    function onSoundReady() {
+        sound.ready.disconnect(onSoundReady);
+        playSound();
+    }
+
+    Script.unload = function (entityID) {
+        if (recOn == "on") {
+            Script.clearInterval(timer);
+        }
+        if (playing == "on") {
+            Script.clearInterval(timerB);
+        }
     }
 
 });
