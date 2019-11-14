@@ -6,7 +6,7 @@
         var readyEvent = {
             "action": "now",
             "timeStamp": 0,
-            "videoUrl": "videoUrl",
+            "videoUrl": "Video URL here",
         };
         var message = JSON.stringify(readyEvent);
         Messages.sendMessage("videoPlayOnEntity", message);
