@@ -1,0 +1,66 @@
+<html>
+
+<head>
+    <style>
+        .myButton {
+            box-shadow: 0px 1px 0px 0px #fff6af;
+            background: linear-gradient(to bottom, #ffec64 5%, #ffab23 100%);
+            background-color: #ffec64;
+            border-radius: 6px;
+            border: 1px solid #ffaa22;
+            display: inline-block;
+            cursor: pointer;
+            color: #333333;
+            font-family: Arial;
+            font-size: 15px;
+            font-weight: bold;
+            padding: 4px 5px;
+            text-decoration: none;
+            text-shadow: 0px 1px 0px #ffee66;
+        }
+
+        .myButton:hover {
+            background: linear-gradient(to bottom, #ffab23 5%, #ffec64 100%);
+            background-color: #ffab23;
+        }
+
+        .myButton:active {
+            position: relative;
+            top: 1px;
+        }
+    </style>
+</head>
+
+<body bgcolor="#333333">
+    <input type="file" class="myButton" onchange="previewFile()"><br><br>
+    <center><img id="myImg" src="Shareyourimagehere.png" height="500" alt="Image preview..."></center>
+
+    <script>
+        function previewFile() {
+            var preview = document.querySelector('img');
+            var file = document.querySelector('input[type=file]').files[0];
+            var reader = new FileReader();
+
+            reader.addEventListener("load", function () {
+                preview.src = reader.result;
+                var readyEvent = {
+                    "src": reader.result
+                };
+                EventBridge.emitWebEvent(JSON.stringify(readyEvent));
+            }, false);
+
+            if (file) {
+                reader.readAsDataURL(file);
+            }
+        }
+
+        EventBridge.scriptEventReceived.connect(function (message) {
+            var messageData = JSON.parse(message);
+            messageDataSrc = messageData.src;
+            document.getElementById("myImg").src = messageDataSrc;
+        });
+
+    </script>
+</body>
+
+</html>
