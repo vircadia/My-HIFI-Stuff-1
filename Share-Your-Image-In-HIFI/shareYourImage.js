@@ -4,7 +4,6 @@
     var entity;
     var _entityID;
     var originalEntityData;
-    var v = { x: 0, y: 0.1, z: 0 };
     var sourceUrl = Script.resolvePath("shareYourImage.html" + "?" + Date.now());
     script.preload = function (entityID) {
         entity = Entities.getEntityProperties(entityID, ["position", "rotation", "dimensions"]);
@@ -15,7 +14,12 @@
             sourceUrl: sourceUrl,
             rotation: entity.rotation,
             dimensions: entity.dimensions,
-            position: Vec3.sum(v, entity.position)
+            registrationPoint: {
+                "x": 0.5,
+                "y": 0.5,
+                "z": 0
+            },
+            position: entity.position
         }, "local");
         originalEntityData = entity;
         Entities.webEventReceived.connect(onWebEvent);
@@ -45,7 +49,7 @@
         if (JSON.stringify(originalEntityData.position) == JSON.stringify(entity.position) && JSON.stringify(originalEntityData.rotation) == JSON.stringify(entity.rotation) && JSON.stringify(originalEntityData.dimensions) == JSON.stringify(entity.dimensions)) {
         } else {
             Entities.editEntity(uuid, {
-                position: Vec3.sum(v, entity.position),
+                position: entity.position,
                 rotation: entity.rotation,
                 dimensions: entity.dimensions
             });
