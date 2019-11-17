@@ -40,11 +40,11 @@
             var preview = document.querySelector('img');
             var file = document.querySelector('input[type=file]').files[0];
             var reader = new FileReader();
-
             reader.addEventListener("load", function () {
-                preview.src = reader.result;
+                imageBeingSent();
                 var readyEvent = {
-                    "src": reader.result
+                    "src": reader.result,
+                    "nowPic": "pic"
                 };
                 EventBridge.emitWebEvent(JSON.stringify(readyEvent));
             }, false);
@@ -54,10 +54,21 @@
             }
         }
 
+        function imageBeingSent() {
+            var readyEvent = {
+                "nowPic": "imageBeingSent"
+            };
+            EventBridge.emitWebEvent(JSON.stringify(readyEvent));
+        }
+
         EventBridge.scriptEventReceived.connect(function (message) {
             var messageData = JSON.parse(message);
-            messageDataSrc = messageData.src;
-            document.getElementById("myImg").src = messageDataSrc;
+            if (messageData.nowPic == "imageBeingSent") {
+                document.getElementById("myImg").src = "imageBeingSent.png";
+            } else {
+                messageDataSrc = messageData.src;
+                document.getElementById("myImg").src = messageDataSrc;
+            }
         });
 
     </script>
