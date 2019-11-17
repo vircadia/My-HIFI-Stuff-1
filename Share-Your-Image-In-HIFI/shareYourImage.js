@@ -1,5 +1,6 @@
 (function () {
     var uuid;
+    var _uuid;
     var script = this;
     var entity;
     var _entityID;
@@ -21,6 +22,7 @@
             },
             position: entity.position
         }, "local");
+        _uuid = uuid;
         originalEntityData = entity;
         Entities.webEventReceived.connect(onWebEvent);
     }
@@ -30,14 +32,15 @@
     });
 
     function onWebEvent(uuid, event) {
-        Messages.sendMessage("src", event);
+        if (uuid == _uuid) {
+            Messages.sendMessage("src", event);
+        }
     }
 
     function onMessageReceived(channel, message, sender, localOnly) {
         if (channel != "src") {
             return;
         }
-        messageData = JSON.parse(message);
         Entities.emitScriptEvent(uuid, message);
     }
 
