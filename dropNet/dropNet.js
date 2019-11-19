@@ -1,15 +1,27 @@
+Menu.menuItemEvent.connect(onMenuItemEvent);
+Menu.addMenu("Drop Net");
+Menu.addMenuItem("Drop Net", "Clear all browsers");
+var sessionUUID = MyAvatar.sessionUUID;
 var tablet = Tablet.getTablet("com.highfidelity.interface.tablet.system");
 var button = tablet.addButton({
     text: "Drop Net"
 });
 
-var oldUuid;
+function onMenuItemEvent(menuItem) {
+    if (menuItem == "Clear all browsers") {
+    }
+    ClearAllBrowsers();
+}
+
+var oldUuids = [
+    ""
+];
+var numberToAssignUuidInArray = 0;
 var entityPosition;
 var entityMessage;
 var myDisplayName;
 
 function onClicked() {
-    Entities.deleteEntity(oldUuid);
     var loc = Window.prompt("Enter url", "");
     if (loc) {
         Messages.sendMessage("webMe", JSON.stringify({
@@ -26,9 +38,6 @@ function onMessageReceived(channel, message, sender, localOnly) {
         return;
     }
     entityMessage = JSON.parse(message);
-    entityPosition = entityMessage.position;
-    entityUrl = entityMessage.sourceUrl;
-    entityRotation = entityMessage.rotation;
     displayName = entityMessage.displayName;
     myDisplayName = MyAvatar.displayName;
     if (displayName == myDisplayName) {
@@ -39,25 +48,25 @@ function onMessageReceived(channel, message, sender, localOnly) {
                 addWeb();
         }
         function addWeb() {
-            Entities.deleteEntity(oldUuid);
             entityID = Entities.addEntity({
                 type: "Web",
-                sourceUrl: entityUrl,
-                rotation: entityRotation,
+                sourceUrl: entityMessage.sourceUrl,
+                rotation: entityMessage.rotation,
                 dimensions: {
                     "x": 2.8344976902008057,
                     "y": 1.594405174255371,
                     "z": 0.009999999776482582
                 },
-                position: entityPosition
+                position: entityMessage.position
             }, "local");
-            oldUuid = entityID;
+            oldUuids[numberToAssignUuidInArray] = entityID;
+            numberToAssignUuidInArray++;
         }
     }
 }
 
 MyAvatar.sessionUUIDChanged.connect(function () {
-    Entities.deleteEntity(oldUuid);
+    ClearAllBrowsers();
 });
 
 Messages.subscribe("webMe");
@@ -65,9 +74,20 @@ Messages.messageReceived.connect(onMessageReceived);
 
 button.clicked.connect(onClicked);
 
+function ClearAllBrowsers() {
+    for (i = 0; i < oldUuids.length; i++) {
+        Entities.deleteEntity(oldUuids[i]);
+    }
+    oldUuids = [
+        ""
+    ];
+}
+
 Script.scriptEnding.connect(function () {
     tablet.removeButton(button);
-    Entities.deleteEntity(oldUuid);
+    ClearAllBrowsers();
     Messages.messageReceived.disconnect(onMessageReceived);
-    Messages.unsubscribe(webMe);
+    Messages.unsubscribe("webMe");
+    Menu.removeMenuItem("Drop Net", "Clear all browsers");
+    Menu.removeMenu("Drop Net");
 });
