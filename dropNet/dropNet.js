@@ -94,7 +94,7 @@ function ClearAllBrowsers() {
     for (var i = 0; i < oldUuids.length; i++) {
         print("Removing", i, oldUuids[i].entityID+'', oldUuids[i].displayName+'');
         Entities.deleteEntity(oldUuids[i].entityID);
-        Menu.removeMenuItem("Drop Net > Clear one browser", displayName + " " + i);
+        Menu.removeMenuItem("Drop Net > Clear one browser", oldUuids[i].displayName);
     }
     oldUuids = [
         {
