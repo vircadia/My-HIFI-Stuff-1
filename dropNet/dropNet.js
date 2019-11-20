@@ -1,6 +1,7 @@
 Menu.menuItemEvent.connect(onMenuItemEvent);
 Menu.addMenu("Drop Net");
 Menu.addMenuItem("Drop Net", "Clear all browsers");
+Menu.addMenu("Drop Net > Clear one browser");
 var sessionUUID = MyAvatar.sessionUUID;
 var tablet = Tablet.getTablet("com.highfidelity.interface.tablet.system");
 var button = tablet.addButton({
@@ -8,13 +9,22 @@ var button = tablet.addButton({
 });
 
 function onMenuItemEvent(menuItem) {
+    print(menuItem);
     if (menuItem == "Clear all browsers") {
+        ClearAllBrowsers();
+    } else {
+        for (var i = 0; i < oldUuids.length; i++) {
+            if (menuItem == oldUuids[i].displayName) {
+                Entities.deleteEntity(oldUuids[i].entityID);
+                Menu.removeMenuItem("Drop Net > Clear one browser", displayName + " " + i);              
+            }
+        }
     }
-    ClearAllBrowsers();
 }
 
 var oldUuids = [
-    ""
+    {
+    }
 ];
 var numberToAssignUuidInArray = 0;
 var entityPosition;
@@ -59,7 +69,13 @@ function onMessageReceived(channel, message, sender, localOnly) {
                 },
                 position: entityMessage.position
             }, "local");
-            oldUuids[numberToAssignUuidInArray] = entityID;
+
+            var oldUuidsEntity = {
+              displayName: displayName + " " + numberToAssignUuidInArray,
+              entityID: entityID
+            };
+            oldUuids[numberToAssignUuidInArray] = oldUuidsEntity;
+            Menu.addMenuItem("Drop Net > Clear one browser", displayName + " " + numberToAssignUuidInArray);
             numberToAssignUuidInArray++;
         }
     }
@@ -75,12 +91,16 @@ Messages.messageReceived.connect(onMessageReceived);
 button.clicked.connect(onClicked);
 
 function ClearAllBrowsers() {
-    for (i = 0; i < oldUuids.length; i++) {
-        Entities.deleteEntity(oldUuids[i]);
+    for (var i = 0; i < oldUuids.length; i++) {
+        print("Removing", i, oldUuids[i].entityID+'', oldUuids[i].displayName+'');
+        Entities.deleteEntity(oldUuids[i].entityID);
+        Menu.removeMenuItem("Drop Net > Clear one browser", displayName + " " + i);
     }
     oldUuids = [
-        ""
+        {
+        }
     ];
+    numberToAssignUuidInArray = 0;
 }
 
 Script.scriptEnding.connect(function () {
