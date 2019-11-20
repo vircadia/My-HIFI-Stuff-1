@@ -16,7 +16,7 @@ function onMenuItemEvent(menuItem) {
         for (var i = 0; i < oldUuids.length; i++) {
             if (menuItem == oldUuids[i].displayName) {
                 Entities.deleteEntity(oldUuids[i].entityID);
-                Menu.removeMenuItem("Drop Net > Clear one browser", displayName + " " + i);              
+                Menu.removeMenuItem("Drop Net > Clear one browser", oldUuids[i].displayName);              
             }
         }
     }
@@ -71,11 +71,11 @@ function onMessageReceived(channel, message, sender, localOnly) {
             }, "local");
 
             var oldUuidsEntity = {
-              displayName: displayName + " " + numberToAssignUuidInArray,
+              displayName: displayName + " " + entityMessage.sourceUrl,
               entityID: entityID
             };
             oldUuids[numberToAssignUuidInArray] = oldUuidsEntity;
-            Menu.addMenuItem("Drop Net > Clear one browser", displayName + " " + numberToAssignUuidInArray);
+            Menu.addMenuItem("Drop Net > Clear one browser", displayName + " " + entityMessage.sourceUrl);
             numberToAssignUuidInArray++;
         }
     }
