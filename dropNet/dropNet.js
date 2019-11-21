@@ -4,7 +4,7 @@ Menu.addMenuItem("Drop Net", "Clear all browsers");
 Menu.addMenu("Drop Net > Clear one browser");
 Menu.addMenuItem({
     menuName: "Drop Net",
-    menuItemName: "Except Requests",
+    menuItemName: "Accept Requests",
     isCheckable: true
 });
 var sessionUUID = MyAvatar.sessionUUID;
@@ -61,11 +61,11 @@ function onMessageReceived(channel, message, sender, localOnly) {
     if (displayName == myDisplayName) {
         addWeb();
     } else if (approvedList.indexOf(entityMessage.sessionUUID) !== -1) {
-        if (Menu.isOptionChecked("Except Requests")) {
+        if (Menu.isOptionChecked("Accept Requests")) {
             addWeb();
         }
     } else {
-        if (Menu.isOptionChecked("Except Requests")) {
+        if (Menu.isOptionChecked("Accept Requests")) {
             var confirm = Window.confirm("Would you like to view web entity from " + displayName + "?");
             if (confirm == true) {
                 approvedList[approvedListNumber] = entityMessage.sessionUUID;
