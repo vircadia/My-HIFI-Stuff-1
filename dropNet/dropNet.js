@@ -12,7 +12,9 @@ var tablet = Tablet.getTablet("com.highfidelity.interface.tablet.system");
 var button = tablet.addButton({
     text: "Drop Net"
 });
-
+var sessionUUID = MyAvatar.sessionUUID;
+var approvedList = [];
+var approvedListNumber = 0;
 function onMenuItemEvent(menuItem) {
     print(menuItem);
     if (menuItem == "Clear all browsers") {
@@ -43,6 +45,7 @@ function onClicked() {
             sourceUrl: loc,
             displayName: MyAvatar.displayName,
             rotation: MyAvatar.orientation,
+            sessionUUID: sessionUUID,
             position: Vec3.sum(MyAvatar.position, Quat.getFront(MyAvatar.orientation))
         }));
     }
@@ -57,10 +60,16 @@ function onMessageReceived(channel, message, sender, localOnly) {
     myDisplayName = MyAvatar.displayName;
     if (displayName == myDisplayName) {
         addWeb();
+    } else if (approvedList.indexOf(entityMessage.sessionUUID) !== -1) {
+        if (Menu.isOptionChecked("Except Requests")) {
+            addWeb();
+        }
     } else {
         if (Menu.isOptionChecked("Except Requests")) {
             var confirm = Window.confirm("Would you like to view web entity from " + displayName + "?");
             if (confirm == true) {
+                approvedList[approvedListNumber] = entityMessage.sessionUUID;
+                approvedListNumber++;
                 addWeb();
             }
             function addWeb() {
