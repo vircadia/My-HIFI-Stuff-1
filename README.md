@@ -7,6 +7,20 @@ Not for profit.
 Current Scripts
 ---
 
+* Add-Shader-To-Your-Avatar
+
+Makes it easy to apply a Shader to your avatar.
+
+* Share-Your-Image-In-HIFI
+
+Makes it so you can choose a image on your local machine and share it with others over the messaging mixer.
+
+* Video_Sync
+
+Makes it so you can watch videos with others and sync it over the messaging mixer.
+
+* Video_Sync_On_The_Tablet
+
 * dropNet.js
 
 Meant to share web entities with others running the script Wherever You Are in high fidelity VR. 
