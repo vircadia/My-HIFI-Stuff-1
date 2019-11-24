@@ -5,6 +5,7 @@
     var self = this;
     var entity;
     var _entityID;
+    var _uuid;
     var originalEntityData;
     var sourceUrl = Script.resolvePath("videoSync.html" + "?" + Date.now());
     script.preload = function (entityID) {
@@ -16,13 +17,15 @@
             maxFPS: 60,
             sourceUrl: sourceUrl,
             rotation: entity.rotation,
-            dimensions: {
-                "x": 2.8344976902008057,
-                "y": 1.671199917793274,
-                "z": 0.009999999776482582
+            dimensions: entity.dimensions,
+            registrationPoint: {
+                "x": 0.5,
+                "y": 0.5,
+                "z": 0
             },
             position: entity.position
         }, "local");
+        _uuid = uuid;
         originalEntityData = entity;
         Entities.webEventReceived.connect(onWebEvent);
     }
@@ -32,13 +35,15 @@
     });
 
     function onWebEvent(uuid, event) {
-        messageData = JSON.parse(event);
-        if (pause == "stop") {
-            print("Event is paused");
-        } else {
-            pause = "stop";
-            stopPausEvent();
-            Messages.sendMessage("videoPlayOnEntity", event);
+        if (uuid == _uuid) {
+            messageData = JSON.parse(event);
+            if (pause == "stop") {
+                print("Event is paused");
+            } else {
+                pause = "stop";
+                stopPausEvent();
+                Messages.sendMessage("videoPlayOnEntity", event);
+            }
         }
     }
 
@@ -64,12 +69,13 @@
     }
 
     self.intervalID = Script.setInterval(function () {
-        entity = Entities.getEntityProperties(_entityID, ["position", "rotation"]);
-        if (JSON.stringify(originalEntityData.position) == JSON.stringify(entity.position) && JSON.stringify(originalEntityData.rotation) == JSON.stringify(entity.rotation)) {
+        entity = Entities.getEntityProperties(_entityID, ["position", "rotation", "dimensions"]);
+        if (JSON.stringify(originalEntityData.position) == JSON.stringify(entity.position) && JSON.stringify(originalEntityData.rotation) == JSON.stringify(entity.rotation) && JSON.stringify(originalEntityData.dimensions) == JSON.stringify(entity.dimensions)) {
         } else {
             Entities.editEntity(uuid, {
                 position: entity.position,
                 rotation: entity.rotation,
+                dimensions: entity.dimensions
             });
             originalEntityData = entity;
         }
