@@ -39,7 +39,7 @@
                 "myAddress": children
             };
             tablet.emitScriptEvent(JSON.stringify(readyEvent));
-        } else if (messageData.action == "visit") {
+        } else if (messageData.action == "goToUrl") {
             Window.location = messageData.visit;
         }
     }
