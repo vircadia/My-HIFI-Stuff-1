@@ -1,5 +1,4 @@
 (function () {
-    print
     var tablet = Tablet.getTablet("com.highfidelity.interface.tablet.system");
     Menu.menuItemEvent.connect(onMenuItemEvent);
     var AppUi = Script.require('appUi');
@@ -80,5 +79,7 @@
     Script.scriptEnding.connect(function () {
         Messages.unsubscribe("goTo");
         Menu.removeMenu("GoTo");
+        tablet.webEventReceived.disconnect(onWebEventReceived);
+        Menu.menuItemEvent.disconnect(onMenuItemEvent);
     });
 }());
