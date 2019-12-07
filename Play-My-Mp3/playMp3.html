@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+.myButton {
+	box-shadow: 3px 4px 0px 0px #899599;
+	background:linear-gradient(to bottom, #ededed 5%, #bab1ba 100%);
+	background-color:#ededed;
+	border-radius:15px;
+	border:1px solid #d6bcd6;
+	display:inline-block;
+	cursor:pointer;
+	color:#3a8a9e;
+	font-family:Arial;
+	font-size:14px;
+	padding:4px 15px;
+	text-decoration:none;
+	text-shadow:0px 1px 0px #e1e2ed;
+}
+.myButton:hover {
+	background:linear-gradient(to bottom, #bab1ba 5%, #ededed 100%);
+	background-color:#bab1ba;
+}
+.myButton:active {
+	position:relative;
+	top:1px;
+}
+
+
+        .slidecontainer {
+            width: 100%;
+        }
+
+        .slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 15px;
+            border-radius: 5px;
+            background: #d3d3d3;
+            outline: none;
+            opacity: 0.7;
+            -webkit-transition: .2s;
+            transition: opacity .2s;
+        }
+
+        .slider:hover {
+            opacity: 1;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: #4CAF50;
+            cursor: pointer;
+        }
+
+        .slider::-moz-range-thumb {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: #4CAF50;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body bgcolor="#bfeef9">
+    <h1><font color="8facf3">Play My Mp3</font></h1>
+    <button onclick="browseForMp3()" type="button" class="myButton">Choose local MP3</button><br><br>
+    <button onclick="mp3FromUrl()" type="button" class="myButton">Choose Mp3 From URL</button><br><br>
+
+
+    <div class="slidecontainer">
+        <input type="range" min="0" max="2" value="1" step="0.01" class="slider" id="myRange">
+        <p><font color="8facf3">Value: <span id="demo"></span></font></p>
+    </div>
+    <button onclick="stopIt()" type="button" class="myButton">Stop</button>
+
+    <script>
+        var slider = document.getElementById("myRange");
+        var output = document.getElementById("demo");
+        output.innerHTML = slider.value;
+
+        slider.oninput = function () {
+            output.innerHTML = this.value;
+            adjustVolume(this.value);
+        }
+
+        function adjustVolume(value) {
+            var readyEvent = {
+                "action": "adjustVolume",
+                "volume": value
+            };
+            EventBridge.emitWebEvent(JSON.stringify(readyEvent));
+        }
+
+        function mp3FromUrl(url) {
+            var mp3Url = prompt("Please enter your mp3 url", " ");
+            var readyEvent = {
+                "action": "newMp3Url",
+                "Mp3Url": mp3Url
+            };
+            EventBridge.emitWebEvent(JSON.stringify(readyEvent));
+        }
+
+        function browseForMp3() {
+            var readyEvent = {
+                "action": "newMp3"
+            };
+            EventBridge.emitWebEvent(JSON.stringify(readyEvent));
+        }
+
+        function stopIt() {
+            var readyEvent = {
+                "action": "stopIt"
+            };
+            EventBridge.emitWebEvent(JSON.stringify(readyEvent));
+        }
+
+        function restartIt() {
+            var readyEvent = {
+                "action": "restartIt"
+            };
+            EventBridge.emitWebEvent(JSON.stringify(readyEvent));
+        }
+
+    </script>
+
+</body>
+
+</html>
