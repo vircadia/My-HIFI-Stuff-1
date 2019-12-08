@@ -1,9 +1,8 @@
 (function () {
     var speakerUrl = Script.resolvePath("speaker.fbx");
-    var speakerInUse = "no";
+    var speakerInUse = false;
     var entityID;
-    var paused = false;
-    var injectorIsRunning = "no";
+    var injectorIsRunning = false;
     var tablet = Tablet.getTablet("com.highfidelity.interface.tablet.system");
     var AppUi = Script.require('appUi');
     var sound;
@@ -33,10 +32,10 @@
     }
 
     function playSound() {
-        injectorIsRunning = "yes";
+        injectorIsRunning = true;
         injector = Audio.playSound(sound, injectorOptions);
         injector.finished.connect(function () {
-            injectorIsRunning = "no";
+            injectorIsRunning = false;
         });
     }
 
@@ -46,7 +45,7 @@
     }
 
     function okGo() {
-        if (injectorIsRunning == "yes") {
+        if (injectorIsRunning) {
             injector.stop();
         }
         if (use == "avatar") {
@@ -76,7 +75,7 @@
             okGo();
         } else if (messageData.action == "stopIt") {
             injector.stop();
-            injectorIsRunning = "no";
+            injectorIsRunning = false;
         } else if (messageData.action == "buttonStatus") {
             var readyEvent = {
                 "action": "buttonStatusResponse",
@@ -92,13 +91,13 @@
                     modelURL: speakerUrl,
                     position: Vec3.sum(MyAvatar.position, Quat.getFront(MyAvatar.orientation))
                 }, "avatar");
-                speakerInUse = "yes";
+                speakerInUse = true;
             } else if (messageData.soundPlayAt == "avatar") {
                 use = "avatar";
                 soundPlayingAt = "avatar";
-                if (speakerInUse == "yes") {
+                if (speakerInUse) {
                     Entities.deleteEntity(entityID);
-                    speakerInUse = "no";
+                    speakerInUse = false;
                 }
             }
         }
@@ -106,9 +105,9 @@
 
     MyAvatar.sessionUUIDChanged.connect(function () {
         use = "avatar";
-        speakerInUse = "no";
+        speakerInUse = false;
         soundPlayingAt = "avatar";
-        injectorIsRunning = "no";
+        injectorIsRunning = false;
         Entities.deleteEntity(entityID);
         injector.stop();
     });
