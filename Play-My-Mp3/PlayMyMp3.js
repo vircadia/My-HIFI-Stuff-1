@@ -7,6 +7,7 @@
     var AppUi = Script.require('appUi');
     var sound;
     var use = "avatar";
+    var mp3Volume = 0.01;
     var injectorOptions = {
         position: MyAvatar.position,
         volume: 0.01
@@ -67,6 +68,7 @@
         if (messageData.action == "newMp3") {
             browseForMp3();
         } else if (messageData.action == "adjustVolume") {
+            mp3Volume = messageData.volume;
             injectorOptions.volume = parseFloat(messageData.volume);
             injector.options = injectorOptions;
         } else if (messageData.action == "newMp3Url") {
@@ -79,7 +81,8 @@
         } else if (messageData.action == "buttonStatus") {
             var readyEvent = {
                 "action": "buttonStatusResponse",
-                "soundPlayingAt": soundPlayingAt
+                "soundPlayingAt": soundPlayingAt,
+                "volume": mp3Volume
             };
             tablet.emitScriptEvent(JSON.stringify(readyEvent));
         } else if (messageData.action == "soundPlayAt") {
