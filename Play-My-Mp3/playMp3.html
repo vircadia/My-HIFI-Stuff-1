@@ -1,32 +1,33 @@
 <!DOCTYPE html>
 <html>
-
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
-.myButton {
-	box-shadow: 3px 4px 0px 0px #899599;
-	background:linear-gradient(to bottom, #ededed 5%, #bab1ba 100%);
-	background-color:#ededed;
-	border-radius:15px;
-	border:1px solid #d6bcd6;
-	display:inline-block;
-	cursor:pointer;
-	color:#3a8a9e;
-	font-family:Arial;
-	font-size:14px;
-	padding:4px 15px;
-	text-decoration:none;
-	text-shadow:0px 1px 0px #e1e2ed;
-}
-.myButton:hover {
-	background:linear-gradient(to bottom, #bab1ba 5%, #ededed 100%);
-	background-color:#bab1ba;
-}
-.myButton:active {
-	position:relative;
-	top:1px;
-}
+        .myButton {
+            box-shadow: 3px 4px 0px 0px #899599;
+            background: linear-gradient(to bottom, #ededed 5%, #bab1ba 100%);
+            background-color: #ededed;
+            border-radius: 15px;
+            border: 1px solid #d6bcd6;
+            display: inline-block;
+            cursor: pointer;
+            color: #3a8a9e;
+            font-family: Arial;
+            font-size: 14px;
+            padding: 4px 15px;
+            text-decoration: none;
+            text-shadow: 0px 1px 0px #e1e2ed;
+        }
+
+        .myButton:hover {
+            background: linear-gradient(to bottom, #bab1ba 5%, #ededed 100%);
+            background-color: #bab1ba;
+        }
+
+        .myButton:active {
+            position: relative;
+            top: 1px;
+        }
 
 
         .slidecontainer {
@@ -55,7 +56,7 @@
             width: 25px;
             height: 25px;
             border-radius: 50%;
-            background: #4CAF50;
+            background: #4245f8;
             cursor: pointer;
         }
 
@@ -63,23 +64,34 @@
             width: 25px;
             height: 25px;
             border-radius: 50%;
-            background: #4CAF50;
+            background: #4245f8;
             cursor: pointer;
         }
     </style>
 </head>
 
-<body bgcolor="#bfeef9">
-    <h1><font color="8facf3">Play My Mp3</font></h1>
+<body bgcolor="#bfeef9" onload="retrieveButtonStatus()">
+    <h1>
+        <font color="8facf3">Play My Mp3</font>
+    </h1>
     <button onclick="browseForMp3()" type="button" class="myButton">Choose local MP3</button><br><br>
     <button onclick="mp3FromUrl()" type="button" class="myButton">Choose Mp3 From URL</button><br><br>
 
 
     <div class="slidecontainer">
+        <h3>
+            <font color="8facf3">Volume</font>
+        </h3>
         <input type="range" min="0" max="2" value="1" step="0.01" class="slider" id="myRange">
-        <p><font color="8facf3">Volume <span id="demo"></span></font></p>
+        <p>
+            <font color="8facf3">Volume Level <span id="demo"></span></font>
+        </p>
     </div>
-    <button onclick="stopIt()" type="button" class="myButton">Stop</button>
+    <button onclick="stopIt()" type="button" class="myButton">Stop</button><br>
+    <p>
+        <font color="8facf3">Play Mp3 From</font>
+    </p>
+    <p id="soundPlayingAtButton"></p>
 
     <script>
         var slider = document.getElementById("myRange");
@@ -101,11 +113,15 @@
 
         function mp3FromUrl(url) {
             var mp3Url = prompt("Please enter your mp3 url", "");
-            var readyEvent = {
-                "action": "newMp3Url",
-                "Mp3Url": mp3Url
-            };
-            EventBridge.emitWebEvent(JSON.stringify(readyEvent));
+            if (mp3Url != null) {
+                if (mp3Url != "") {
+                    var readyEvent = {
+                        "action": "newMp3Url",
+                        "Mp3Url": mp3Url
+                    };
+                    EventBridge.emitWebEvent(JSON.stringify(readyEvent));
+                }
+            }
         }
 
         function browseForMp3() {
@@ -129,8 +145,48 @@
             EventBridge.emitWebEvent(JSON.stringify(readyEvent));
         }
 
+        function retrieveButtonStatus() {
+            var readyEvent = {
+                "action": "buttonStatus"
+            };
+            EventBridge.emitWebEvent(JSON.stringify(readyEvent));
+        }
+
+        function soundPlayAtSpeaker() {
+            var readyEvent = {
+                "action": "soundPlayAt",
+                "soundPlayAt": "speaker"
+            };
+            EventBridge.emitWebEvent(JSON.stringify(readyEvent));
+            var soundPlayingAtButton = "<button type=\"button\" class=\"myButton\" onclick=\" soundPlayAtAvatar()\">Avatar</button>";
+            document.getElementById("soundPlayingAtButton").innerHTML = soundPlayingAtButton;
+        }
+
+        function soundPlayAtAvatar() {
+            var readyEvent = {
+                "action": "soundPlayAt",
+                "soundPlayAt": "avatar"
+            };
+            EventBridge.emitWebEvent(JSON.stringify(readyEvent));
+            var soundPlayingAtButton = "<button type=\"button\" class=\"myButton\" onclick=\" soundPlayAtSpeaker()\">Speaker</button>";
+            document.getElementById("soundPlayingAtButton").innerHTML = soundPlayingAtButton;
+        }
+
+        EventBridge.scriptEventReceived.connect(function (message) {
+            var messageData = JSON.parse(message);
+            if (messageData.action == "buttonStatusResponse") {
+                if (messageData.soundPlayingAt == "avatar") {
+                    var buttonText = "Speaker";
+                    var onclick = "soundPlayAtSpeaker";
+                } else if (messageData.soundPlayingAt == "speaker") {
+                    var buttonText = "Avatar";
+                    var onclick = "soundPlayAtAvatar";
+                }
+                var soundPlayingAtButton = "<button type=\"button\" class=\"myButton\" onclick=\"" + onclick + "()\">" + buttonText + "</button>";
+                document.getElementById("soundPlayingAtButton").innerHTML = soundPlayingAtButton;
+            }
+        });
+
     </script>
-
 </body>
-
 </html>
