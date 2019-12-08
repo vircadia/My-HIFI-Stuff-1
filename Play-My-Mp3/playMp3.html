@@ -77,7 +77,6 @@
     <button onclick="browseForMp3()" type="button" class="myButton">Choose local MP3</button><br><br>
     <button onclick="mp3FromUrl()" type="button" class="myButton">Choose Mp3 From URL</button><br><br>
 
-
     <div class="slidecontainer">
         <h3>
             <font color="4245f8">Volume</font>
@@ -182,6 +181,8 @@
                     var buttonText = "Avatar";
                     var onclick = "soundPlayAtAvatar";
                 }
+                output.innerHTML = messageData.volume;
+                document.getElementById("myRange").value = messageData.volume;
                 var soundPlayingAtButton = "<button type=\"button\" class=\"myButton\" onclick=\"" + onclick + "()\">" + buttonText + "</button>";
                 document.getElementById("soundPlayingAtButton").innerHTML = soundPlayingAtButton;
             }
