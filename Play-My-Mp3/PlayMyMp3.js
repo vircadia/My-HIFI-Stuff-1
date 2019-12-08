@@ -2,6 +2,7 @@
     var speakerUrl = Script.resolvePath("speaker.fbx");
     var speakerInUse = "no";
     var entityID;
+    var paused = false;
     var injectorIsRunning = "no";
     var tablet = Tablet.getTablet("com.highfidelity.interface.tablet.system");
     var AppUi = Script.require('appUi');
@@ -18,7 +19,7 @@
     function startup() {
         ui = new AppUi({
             buttonName: "Play Mp3",
-            home: Script.resolvePath("playMp3.html?93"),
+            home: Script.resolvePath("playMp3.html"),
             graphicsDirectory: Script.resolvePath("./"),
         });
     }
@@ -34,6 +35,9 @@
     function playSound() {
         injectorIsRunning = "yes";
         injector = Audio.playSound(sound, injectorOptions);
+        injector.finished.connect(function () {
+            injectorIsRunning = "no";
+        });
     }
 
     function onSoundReady() {
@@ -46,12 +50,12 @@
             injector.stop();
         }
         if (use == "avatar") {
-            var thePositionAt = MyAvatar.position;
+            var injectorPosition = MyAvatar.position;
         } else if (use == "speaker") {
             entity = Entities.getEntityProperties(entityID, ["position"]);
-            var thePositionAt = entity.position;
+            var injectorPosition = entity.position;
         }
-        injectorOptions.position = thePositionAt;
+        injectorOptions.position = injectorPosition;
         if (sound.downloaded) {
             playSound();
         } else {
@@ -101,19 +105,19 @@
     }
 
     MyAvatar.sessionUUIDChanged.connect(function () {
+        use = "avatar";
+        speakerInUse = "no";
+        soundPlayingAt = "avatar";
+        injectorIsRunning = "no";
+        Entities.deleteEntity(entityID);
         injector.stop();
-        use = avatar;
-        if (speakerInUse == "yes") {
-            Entities.deleteEntity(entityID);
-            speakerInUse = "no";
-        }
     });
 
     tablet.webEventReceived.connect(onWebEventReceived);
 
     Script.scriptEnding.connect(function () {
         tablet.webEventReceived.disconnect(onWebEventReceived);
-        if (speakerInUse == "yes") {
+        if (soundPlayingAt == "speaker") {
             Entities.deleteEntity(entityID);
         }
     });
