@@ -28,9 +28,14 @@
         messageData = JSON.parse(event);
         if (messageData.action == "requestAddressList") {
             goToAddresses = Settings.getValue("goToDecentral", "");
-            var addArray = [];
-            var arrayCount = 0;
-
+            for (var i = 0; i < goToAddresses.length; i++) {
+                try {
+                    Script.require(goToAddresses[i] + "?" + Date.now());
+                }
+                catch (e) {
+                    goToAddresses.remove(goToAddresses[i]);
+                }
+            }
             var children = goToAddresses
                 .map(function (url) { return Script.require(url + '?' + Date.now()); })
                 .reduce(function (result, someChildren) { return result.concat(someChildren); }, []);
@@ -39,6 +44,7 @@
                 "myAddress": children
             };
             tablet.emitScriptEvent(JSON.stringify(readyEvent));
+
         } else if (messageData.action == "goToUrl") {
             Window.location = messageData.visit;
         }
