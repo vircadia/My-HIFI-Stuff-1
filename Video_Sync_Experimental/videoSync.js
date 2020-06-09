@@ -259,7 +259,7 @@
                     dimensions: entity.dimensions
                 });
                 reorientButtonsInProgress = false;
-            }, 1000);
+            }, 2000);
         }
     }
 
