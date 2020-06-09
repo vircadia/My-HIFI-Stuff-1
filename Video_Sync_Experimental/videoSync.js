@@ -17,7 +17,6 @@
     var pauseButtonUuid;
     var originalRotation;
     var reorientButtonsInProgress = false;
-
     var sourceUrl = Script.resolvePath("videoSync.html" + "?" + Date.now());
     script.preload = function (entityID) {
         entity = Entities.getEntityProperties(entityID, ["position", "rotation", "dimensions"]);
