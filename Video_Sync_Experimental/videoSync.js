@@ -16,7 +16,7 @@
     var playButtonUuid;
     var pauseButtonUuid;
     var originalRotation;
-
+    var reorientButtonsInProgress = false;
 
     var sourceUrl = Script.resolvePath("videoSync.html" + "?" + Date.now());
     script.preload = function (entityID) {
@@ -203,51 +203,65 @@
         entity = Entities.getEntityProperties(_entityID, ["position", "rotation", "dimensions"]);
         if (JSON.stringify(originalEntityData.position) == JSON.stringify(entity.position) && JSON.stringify(originalEntityData.rotation) == JSON.stringify(entity.rotation) && JSON.stringify(originalEntityData.dimensions) == JSON.stringify(entity.dimensions)) {
         } else {
-
-            Entities.editEntity(uuid, {
-                rotation: originalRotation,
-            });
-
-            Entities.editEntity(playButtonUuid, {
-                position: {
-                    "x": entity.position.x - entity.dimensions.x / 2 - -0.2,
-                    "y": entity.position.y - entity.dimensions.y / 2 - 0.2,
-                    "z": entity.position.z
-                }
-            });
-
-            Entities.editEntity(pauseButtonUuid, {
-                position: {
-                    "x": entity.position.x - entity.dimensions.x / 2 - -0.5,
-                    "y": entity.position.y - entity.dimensions.y / 2 - 0.2,
-                    "z": entity.position.z
-                }
-            });
-
-            Entities.editEntity(volumeButtonMinus, {
-                position: {
-                    "x": entity.position.x + entity.dimensions.x / 2 - 0.2,
-                    "y": entity.position.y - entity.dimensions.y / 2 - 0.2,
-                    "z": entity.position.z
-                },
-            });
-
-            Entities.editEntity(volumeButtonPlus, {
-                position: {
-                    "x": entity.position.x + entity.dimensions.x / 2 - 0.5,
-                    "y": entity.position.y - entity.dimensions.y / 2 - 0.2,
-                    "z": entity.position.z
-                },
-            });
-
             Entities.editEntity(uuid, {
                 position: entity.position,
                 rotation: entity.rotation,
                 dimensions: entity.dimensions
             });
             originalEntityData = entity;
+            reorientButtons();
         }
     }, 600);
+
+    function reorientButtons() {
+        if (!reorientButtonsInProgress) {
+            reorientButtonsInProgress = true;
+            Script.setTimeout(function () {
+                Entities.editEntity(uuid, {
+                    rotation: originalRotation,
+                });
+    
+                Entities.editEntity(playButtonUuid, {
+                    position: {
+                        "x": entity.position.x - entity.dimensions.x / 2 - -0.2,
+                        "y": entity.position.y - entity.dimensions.y / 2 - 0.2,
+                        "z": entity.position.z
+                    }
+                });
+    
+                Entities.editEntity(pauseButtonUuid, {
+                    position: {
+                        "x": entity.position.x - entity.dimensions.x / 2 - -0.5,
+                        "y": entity.position.y - entity.dimensions.y / 2 - 0.2,
+                        "z": entity.position.z
+                    }
+                });
+    
+                Entities.editEntity(volumeButtonMinus, {
+                    position: {
+                        "x": entity.position.x + entity.dimensions.x / 2 - 0.2,
+                        "y": entity.position.y - entity.dimensions.y / 2 - 0.2,
+                        "z": entity.position.z
+                    },
+                });
+    
+                Entities.editEntity(volumeButtonPlus, {
+                    position: {
+                        "x": entity.position.x + entity.dimensions.x / 2 - 0.5,
+                        "y": entity.position.y - entity.dimensions.y / 2 - 0.2,
+                        "z": entity.position.z
+                    },
+                });
+    
+                Entities.editEntity(uuid, {
+                    position: entity.position,
+                    rotation: entity.rotation,
+                    dimensions: entity.dimensions
+                });
+                reorientButtonsInProgress = false;
+            }, 1000);
+        }
+    }
 
     Messages.subscribe("videoPlayOnEntity");
     Messages.messageReceived.connect(onMessageReceived);
