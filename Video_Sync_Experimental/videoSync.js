@@ -1,10 +1,12 @@
 (function () {
     var playPauseButtonUrl = Script.resolvePath("playPauseButton.js");
     var volumeButtonUrl = Script.resolvePath("volumeButton.js");
+    var videoSyncInterface = Script.resolvePath("videoSyncInterface.js");
     var playButtonFbxUrl = Script.resolvePath("playButton.fbx");
     var pauseButtonURL = Script.resolvePath("pauseButton.fbx");
     var volumeButtonMinusUrl = Script.resolvePath("volumeButtonMinus.fbx");
     var volumeButtonPlusUrl = Script.resolvePath("volumeButtonPlus.fbx");
+    var videoInterfaceButton = Script.resolvePath("videoInterfaceButton.fbx");
     var uuid;
     var script = this;
     var self = this;
@@ -17,6 +19,7 @@
     var pauseButtonUuid;
     var originalRotation;
     var reorientButtonsInProgress = false;
+
     var sourceUrl = Script.resolvePath("videoSync.html" + "?" + Date.now());
     script.preload = function (entityID) {
         entity = Entities.getEntityProperties(entityID, ["position", "rotation", "dimensions"]);
@@ -49,6 +52,7 @@
     function onWebEvent(uuid, event) {
         if (uuid == _uuid) {
             messageData = JSON.parse(event);
+            console.log("Yes " + event);
             Messages.sendMessage("videoPlayOnEntity", event);
         }
     }
@@ -82,9 +86,7 @@
             }
         } else if (messageData.action == "ping" && hasBeenSynced) {
             sendMessage(message);
-            console.log("ping " + hasBeenSynced);
         } else if (hasBeenSynced) {
-            console.log("else " + hasBeenSynced);
             sendMessage(message);
         }
     }
@@ -101,6 +103,14 @@
         Entities.editEntity(pauseButtonUuid, {
             visible: true,
             script: playPauseButtonUrl,
+            userData: JSON.stringify({
+                "Button": "pause"
+            })
+        });
+
+        Entities.editEntity(videoInterfaceButton, {
+            visible: true,
+            script: videoSyncInterface,
             userData: JSON.stringify({
                 "Button": "pause"
             })
@@ -189,6 +199,24 @@
             }
         }, "local");
 
+        videoInterfaceButton = Entities.addEntity({
+            type: "Model",
+            modelURL: videoInterfaceButton,
+            parentID: uuid,
+            position: {
+                "x": entity.position.x - entity.dimensions.x / 2 - -0.5,
+                "y": entity.position.y + entity.dimensions.y / 2 + 0.4,
+                "z": entity.position.z
+            },
+            userData: JSON.stringify({
+                "Button": "up"
+            }),
+            visible: false,
+            grab: {
+                "grabbable": false,
+            }
+        }, "local");
+
         Entities.editEntity(uuid, {
             rotation: entity.rotation
         });
@@ -219,7 +247,7 @@
                 Entities.editEntity(uuid, {
                     rotation: originalRotation,
                 });
-    
+
                 Entities.editEntity(playButtonUuid, {
                     position: {
                         "x": entity.position.x - entity.dimensions.x / 2 - -0.2,
@@ -227,7 +255,7 @@
                         "z": entity.position.z
                     }
                 });
-    
+
                 Entities.editEntity(pauseButtonUuid, {
                     position: {
                         "x": entity.position.x - entity.dimensions.x / 2 - -0.5,
@@ -235,7 +263,7 @@
                         "z": entity.position.z
                     }
                 });
-    
+
                 Entities.editEntity(volumeButtonMinus, {
                     position: {
                         "x": entity.position.x + entity.dimensions.x / 2 - 0.2,
@@ -243,7 +271,7 @@
                         "z": entity.position.z
                     },
                 });
-    
+
                 Entities.editEntity(volumeButtonPlus, {
                     position: {
                         "x": entity.position.x + entity.dimensions.x / 2 - 0.5,
@@ -251,14 +279,22 @@
                         "z": entity.position.z
                     },
                 });
-    
+
+                Entities.editEntity(videoInterfaceButton, {
+                    position: {
+                        "x": entity.position.x - entity.dimensions.x / 2 - -0.5,
+                        "y": entity.position.y + entity.dimensions.y / 2 + 0.4,
+                        "z": entity.position.z
+                    },
+                });
+
                 Entities.editEntity(uuid, {
                     position: entity.position,
                     rotation: entity.rotation,
                     dimensions: entity.dimensions
                 });
                 reorientButtonsInProgress = false;
-            }, 2000);
+            }, 1000);
         }
     }
 
@@ -266,6 +302,7 @@
     Messages.messageReceived.connect(onMessageReceived);
 
     script.unload = function (entityID) {
+        Entities.deleteEntity(videoInterfaceButton);
         Entities.deleteEntity(volumeButtonPlus);
         Entities.deleteEntity(volumeButtonMinus);
         Entities.deleteEntity(pauseButtonUuid);
