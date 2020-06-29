@@ -140,6 +140,15 @@
                     } else if (messageData.volume == "down") {
                         v1.volume = volume - 0.1;
                     }                    
+                } else if (messageData.action == "RequestVideoLengthAndTimeStamp") {
+                    var v1 = document.getElementById('v1');
+                    var readyEvent = {
+                        "action": "RequestVideoLengthAndTimeStampResponse",
+                        "length": v1.duration,
+                        "timeStamp": v1.currentTime,
+                        "myTimeStamp": messageData.myTimeStamp
+                    };
+                    EventBridge.emitWebEvent(JSON.stringify(readyEvent));
                 }
             });
 
