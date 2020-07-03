@@ -6,6 +6,8 @@
     var intervalIsRunning = "no";
     var pause = "og";
     var videoUrl;
+    var timeStampInterval;
+    var thisTimeout;
 
     function onMessageReceived(channel, message, sender, localOnly) {
         if (channel != "videoPlayOnEntity") {
@@ -54,7 +56,7 @@
     }
 
     function ping() {
-        self.intervalID = Script.setInterval(function () {
+        timeStampInterval = Script.setInterval(function () {
             timeStamp = timeStamp + 1;
             pingTimer = pingTimer + 1;
             if (pingTimer == 60) {
@@ -68,7 +70,7 @@
     }
 
     function stopPausEvent() {
-        Script.setTimeout(function () {
+        thisTimeout = Script.setTimeout(function () {
             pause = "og";
         }, 500);
     }
@@ -77,8 +79,13 @@
     Messages.messageReceived.connect(onMessageReceived);
 
     this.unload = function() {
-        Script.clearInterval(self.intervalID);
         Messages.unsubscribe("videoPlayOnEntity");
         Messages.messageReceived.disconnect(onMessageReceived);
+        if (intervalIsRunning == "yes") {
+            Script.clearInterval(timeStampInterval);
+        }
+        if (pause == "stop") {
+            clearTimeout(thisTimeout);
+        }
     }
 });
