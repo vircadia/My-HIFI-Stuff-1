@@ -22,7 +22,7 @@
             timeStamp = messageData.timeStamp;
             videoUrl = messageData.videoUrl;
             if (intervalIsRunning == "yes") {
-                Script.clearInterval(self.intervalID);
+                Script.clearInterval(timeStampInterval);
             }
             intervalIsRunning = "yes";
             ping();
@@ -30,13 +30,13 @@
         } else if (messageData.action == "play") {
             timeStamp = messageData.timeStamp;
             if (intervalIsRunning == "yes") {
-                Script.clearInterval(self.intervalID);
+                Script.clearInterval(timeStampInterval);
             }
             intervalIsRunning = "yes";
             ping();
 
         } else if (messageData.action == "pause") {
-            Script.clearInterval(self.intervalID);
+            Script.clearInterval(timeStampInterval);
             intervalIsRunning = "no";
         } else if (messageData.action == "sync") {
             timeStamp = messageData.timeStamp;
@@ -85,7 +85,7 @@
             Script.clearInterval(timeStampInterval);
         }
         if (pause == "stop") {
-            clearTimeout(thisTimeout);
+            Script.clearTimeout(thisTimeout);
         }
     }
 });
