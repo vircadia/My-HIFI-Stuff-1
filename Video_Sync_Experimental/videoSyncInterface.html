@@ -90,6 +90,9 @@
         <h2>Video slider</h2>
         <input type="range" min="0" max="2" value="1" step="0.01" class="slider" id="videoRange">
     </div>
+    <h2>Loop</h2>
+    <button class="myButton" onclick="loopVideoFunction()">Loop Video</button><br><br>
+    <button class="myButton" onclick="stopLoopVideoFunction()">Stop Looping Video</button>
 </body>
 <script>
     var timeoutIs = false;
@@ -124,6 +127,22 @@
         var readyEvent = {
             "action": "RequestVideoLengthAndTimeStamp",
             "myTimeStamp": myTimeStamp
+        };
+        EventBridge.emitWebEvent(JSON.stringify(readyEvent));
+    }
+
+    function loopVideoFunction() {
+        var sliderLoopTimeStamp = document.getElementById("videoRange").value;
+        var readyEvent = {
+            "action": "loop",
+            "videoLength": sliderLoopTimeStamp
+        };
+        EventBridge.emitWebEvent(JSON.stringify(readyEvent));
+    }
+
+    function stopLoopVideoFunction() {
+        var readyEvent = {
+            "action": "stopLoop",
         };
         EventBridge.emitWebEvent(JSON.stringify(readyEvent));
     }

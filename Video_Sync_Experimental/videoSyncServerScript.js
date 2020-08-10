@@ -8,6 +8,8 @@
     var videoUrl;
     var timeStampInterval;
     var thisTimeout;
+    var isLooping = false;
+    var videoLength;
 
     function onMessageReceived(channel, message, sender, localOnly) {
         if (channel != "videoPlayOnEntity") {
@@ -19,6 +21,7 @@
         stopPausEvent();
         pause = "stop";
         if (messageData.action == "now") {
+            isLooping = false;
             timeStamp = messageData.timeStamp;
             videoUrl = messageData.videoUrl;
             if (intervalIsRunning == "yes") {
@@ -52,6 +55,11 @@
                 Messages.sendMessage("videoPlayOnEntity", message);
             }, 600);
 
+        } else if (messageData.action == "loop") {
+            isLooping = true;
+            videoLength = messageData.videoLength;
+        } else if (messageData.action == "stopLoop") {
+            isLooping = false;
         }
     }
 
@@ -65,6 +73,11 @@
                 messageData.action = "ping";
                 var message = JSON.stringify(messageData);
                 Messages.sendMessage("videoPlayOnEntity", message);
+                if (isLooping) {
+                    if (timeStamp > videoLength) {
+                        timeStamp = 0;
+                    }
+                }
             }
         }, 1000);
     }
