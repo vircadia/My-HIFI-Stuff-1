@@ -6,6 +6,8 @@
     var intervalIsRunning = "no";
     var pause = "og";
     var videoUrl;
+    var timeStampInterval;
+    var thisTimeout;
 
     function onMessageReceived(channel, message, sender, localOnly) {
         if (channel != "videoPlayOnEntity") {
@@ -20,7 +22,7 @@
             timeStamp = messageData.timeStamp;
             videoUrl = messageData.videoUrl;
             if (intervalIsRunning == "yes") {
-                Script.clearInterval(self.intervalID);
+                Script.clearInterval(timeStampInterval);
             }
             intervalIsRunning = "yes";
             ping();
@@ -28,13 +30,13 @@
         } else if (messageData.action == "play") {
             timeStamp = messageData.timeStamp;
             if (intervalIsRunning == "yes") {
-                Script.clearInterval(self.intervalID);
+                Script.clearInterval(timeStampInterval);
             }
             intervalIsRunning = "yes";
             ping();
 
         } else if (messageData.action == "pause") {
-            Script.clearInterval(self.intervalID);
+            Script.clearInterval(timeStampInterval);
             intervalIsRunning = "no";
         } else if (messageData.action == "sync") {
             timeStamp = messageData.timeStamp;
@@ -54,7 +56,7 @@
     }
 
     function ping() {
-        self.intervalID = Script.setInterval(function () {
+        timeStampInterval = Script.setInterval(function () {
             timeStamp = timeStamp + 1;
             pingTimer = pingTimer + 1;
             if (pingTimer == 60) {
@@ -68,7 +70,7 @@
     }
 
     function stopPausEvent() {
-        Script.setTimeout(function () {
+        thisTimeout = Script.setTimeout(function () {
             pause = "og";
         }, 500);
     }
@@ -77,8 +79,13 @@
     Messages.messageReceived.connect(onMessageReceived);
 
     this.unload = function() {
-        Script.clearInterval(self.intervalID);
         Messages.unsubscribe("videoPlayOnEntity");
         Messages.messageReceived.disconnect(onMessageReceived);
+        if (intervalIsRunning == "yes") {
+            Script.clearInterval(timeStampInterval);
+        }
+        if (pause == "stop") {
+            Script.clearTimeout(thisTimeout);
+        }
     }
 });
