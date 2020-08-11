@@ -70,15 +70,19 @@
             pingTimer = pingTimer + 1;
             if (pingTimer == 60) {
                 pingTimer = 0;
-                if (isLooping) {
-                    if (timeStamp > videoLength) {
-                        timeStamp = 0;
-                    }
+                if (isLooping && timeStamp > videoLength) {
+                    var readyEvent = {
+                        "action": "play",
+                        "timeStamp": 0,
+                        "nowVideo": "false"
+                    };
+                    Messages.sendMessage("videoPlayOnEntity", JSON.stringify(readyEvent));
+                } else {
+                    messageData.timeStamp = timeStamp;
+                    messageData.action = "ping";
+                    var message = JSON.stringify(messageData);
+                    Messages.sendMessage("videoPlayOnEntity", message);
                 }
-                messageData.timeStamp = timeStamp;
-                messageData.action = "ping";
-                var message = JSON.stringify(messageData);
-                Messages.sendMessage("videoPlayOnEntity", message);
             }
         }, 1000);
     }
@@ -92,7 +96,7 @@
     Messages.subscribe("videoPlayOnEntity");
     Messages.messageReceived.connect(onMessageReceived);
 
-    this.unload = function() {
+    this.unload = function () {
         Messages.unsubscribe("videoPlayOnEntity");
         Messages.messageReceived.disconnect(onMessageReceived);
         if (intervalIsRunning == "yes") {
