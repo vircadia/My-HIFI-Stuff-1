@@ -118,45 +118,69 @@
     }
 
     function addButtons() {
-        playButtonUuid = Entities.addEntity({
-            type: "Model",
-            modelURL: playButtonFbxUrl,
-            parentID: uuid,
-            position: {
-                "x": entity.position.x - entity.dimensions.x / 2 - -0.2,
-                "y": entity.position.y - entity.dimensions.y / 2 - 0.2,
-                "z": entity.position.z
-            },
-            dimensions: {
-                "x": 0.22840283811092377,
-                "y": 0.22654350101947784,
-                "z": 0.019338179379701614
-            },
-            visible: false,
-            grab: {
-                "grabbable": false,
-            }
-        }, "local");
-
-        pauseButtonUuid = Entities.addEntity({
-            type: "Model",
-            modelURL: pauseButtonURL,
-            parentID: uuid,
-            position: {
-                "x": entity.position.x - entity.dimensions.x / 2 - -0.5,
-                "y": entity.position.y - entity.dimensions.y / 2 - 0.2,
-                "z": entity.position.z
-            },
-            dimensions: {
-                "x": 0.22521905601024628,
-                "y": 0.2252190262079239,
-                "z": 0.008053923957049847
-            },
-            visible: false,
-            grab: {
-                "grabbable": false,
-            }
-        }, "local");
+        if (Entities.canRez()) { // We check to see if the user has edit rights to ensure only trusted users are given video controls (easily..)
+            videoInterfaceButton = Entities.addEntity({
+                type: "Model",
+                modelURL: videoInterfaceButton,
+                parentID: uuid,
+                position: {
+                    "x": entity.position.x - entity.dimensions.x / 2 - -0.5,
+                    "y": entity.position.y + entity.dimensions.y / 2 + 0.4,
+                    "z": entity.position.z
+                },
+                userData: JSON.stringify({
+                    "Button": "up"
+                }),
+                visible: false,
+                grab: {
+                    "grabbable": false,
+                }
+            }, "local");
+    
+            Entities.editEntity(uuid, {
+                rotation: entity.rotation
+            });
+            
+            playButtonUuid = Entities.addEntity({
+                type: "Model",
+                modelURL: playButtonFbxUrl,
+                parentID: uuid,
+                position: {
+                    "x": entity.position.x - entity.dimensions.x / 2 - -0.2,
+                    "y": entity.position.y - entity.dimensions.y / 2 - 0.2,
+                    "z": entity.position.z
+                },
+                dimensions: {
+                    "x": 0.22840283811092377,
+                    "y": 0.22654350101947784,
+                    "z": 0.019338179379701614
+                },
+                visible: false,
+                grab: {
+                    "grabbable": false,
+                }
+            }, "local");
+    
+            pauseButtonUuid = Entities.addEntity({
+                type: "Model",
+                modelURL: pauseButtonURL,
+                parentID: uuid,
+                position: {
+                    "x": entity.position.x - entity.dimensions.x / 2 - -0.5,
+                    "y": entity.position.y - entity.dimensions.y / 2 - 0.2,
+                    "z": entity.position.z
+                },
+                dimensions: {
+                    "x": 0.22521905601024628,
+                    "y": 0.2252190262079239,
+                    "z": 0.008053923957049847
+                },
+                visible: false,
+                grab: {
+                    "grabbable": false,
+                }
+            }, "local");
+        }
 
         volumeButtonMinus = Entities.addEntity({
             type: "Model",
@@ -198,28 +222,6 @@
                 "grabbable": false,
             }
         }, "local");
-
-        videoInterfaceButton = Entities.addEntity({
-            type: "Model",
-            modelURL: videoInterfaceButton,
-            parentID: uuid,
-            position: {
-                "x": entity.position.x - entity.dimensions.x / 2 - -0.5,
-                "y": entity.position.y + entity.dimensions.y / 2 + 0.4,
-                "z": entity.position.z
-            },
-            userData: JSON.stringify({
-                "Button": "up"
-            }),
-            visible: false,
-            grab: {
-                "grabbable": false,
-            }
-        }, "local");
-
-        Entities.editEntity(uuid, {
-            rotation: entity.rotation
-        });
     }
 
     function sendMessage(message) {
