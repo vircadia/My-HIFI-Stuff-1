@@ -98,6 +98,7 @@
     var timeoutIs = false;
     var slider = document.getElementById("videoRange");
     var myTimeStamp = Date.now();
+    var videoLength = 2;
     slider.oninput = function () {
         if (!timeoutIs) {
             setTimeout(() => {
@@ -132,10 +133,9 @@
     }
 
     function loopVideoFunction() {
-        var sliderLoopTimeStamp = document.getElementById("videoRange").value;
         var readyEvent = {
             "action": "loop",
-            "videoLength": sliderLoopTimeStamp
+            "videoLength": videoLength
         };
         EventBridge.emitWebEvent(JSON.stringify(readyEvent));
     }
@@ -152,6 +152,7 @@
         if (messageData.action == "RequestVideoLengthAndTimeStampResponse") {
             document.getElementById("videoRange").max = messageData.length;
             document.getElementById("videoRange").value = messageData.timeStamp;
+            videoLength = messageData.length;
         }
     });
 

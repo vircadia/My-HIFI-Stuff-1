@@ -10,6 +10,7 @@
     var thisTimeout;
     var isLooping = false;
     var videoLength;
+    var restartVideo = false;
 
     function onMessageReceived(channel, message, sender, localOnly) {
         if (channel != "videoPlayOnEntity") {
@@ -69,15 +70,15 @@
             pingTimer = pingTimer + 1;
             if (pingTimer == 60) {
                 pingTimer = 0;
-                messageData.timeStamp = timeStamp;
-                messageData.action = "ping";
-                var message = JSON.stringify(messageData);
-                Messages.sendMessage("videoPlayOnEntity", message);
                 if (isLooping) {
                     if (timeStamp > videoLength) {
                         timeStamp = 0;
                     }
                 }
+                messageData.timeStamp = timeStamp;
+                messageData.action = "ping";
+                var message = JSON.stringify(messageData);
+                Messages.sendMessage("videoPlayOnEntity", message);
             }
         }, 1000);
     }

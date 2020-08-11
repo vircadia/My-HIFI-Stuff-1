@@ -116,6 +116,7 @@
                         clearTimeout(requestSyncWaiting);
                     }
                 } else if (messageData.action == "ping") {
+                    var v1 = document.getElementById('v1');
                     myTimeStamp = v1.currentTime;
                     ping = messageData.timeStamp;
                     x = ping + 2;
