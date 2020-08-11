@@ -98,7 +98,8 @@
             var firstTime = "yes";
             var inCharge = "no";
             var requestSyncWaiting;
-            
+            var videoSyncInterfaceTimeStamp;
+
             function videoPlayerOnClicked() {
                 if (firstTime === "yes") {
                     document.getElementById('video-container-play-button').style.display = "none";
@@ -127,6 +128,19 @@
                     person = messageData.videoUrl;
                     inCharge = "no";
                     firstTime = "no";
+                    if (messageData.myTimeStamp == videoSyncInterfaceTimeStamp) {
+                        var vid = document.getElementById("v1");
+                        vid.onloadeddata = function () {
+                            var v1 = document.getElementById('v1');
+                            var readyEvent = {
+                                "action": "RequestVideoLengthAndTimeStampResponse",
+                                "length": v1.duration,
+                                "timeStamp": v1.currentTime,
+                                "myTimeStamp": videoSyncInterfaceTimeStamp
+                            };
+                            EventBridge.emitWebEvent(JSON.stringify(readyEvent));
+                        };
+                    }
                 } else if (messageData.action == "sync") {
                     if (firstTime == "yes") {
                         document.getElementById("v1").src = messageData.videoUrl;
@@ -148,6 +162,7 @@
                     }
                 } else if (messageData.action == "requestTimestamp") {
                     var v1 = document.getElementById('v1');
+                    videoSyncInterfaceTimeStamp = messageData.myTimeStamp;
                     var readyEvent = {
                         "action": "requestTimestampResponse",
                         "timeStamp": v1.currentTime,
@@ -161,7 +176,7 @@
                         v1.volume = volume + 0.1;
                     } else if (messageData.volume == "down") {
                         v1.volume = volume - 0.1;
-                    }                    
+                    }
                 } else if (messageData.action == "RequestVideoLengthAndTimeStamp") {
                     var v1 = document.getElementById('v1');
                     var readyEvent = {

@@ -68,21 +68,20 @@
         timeStampInterval = Script.setInterval(function () {
             timeStamp = timeStamp + 1;
             pingTimer = pingTimer + 1;
+            if (isLooping && timeStamp > videoLength) {
+                var readyEvent = {
+                    "action": "play",
+                    "timeStamp": 0,
+                    "nowVideo": "false"
+                };
+                Messages.sendMessage("videoPlayOnEntity", JSON.stringify(readyEvent));
+            }
             if (pingTimer == 60) {
                 pingTimer = 0;
-                if (isLooping && timeStamp > videoLength) {
-                    var readyEvent = {
-                        "action": "play",
-                        "timeStamp": 0,
-                        "nowVideo": "false"
-                    };
-                    Messages.sendMessage("videoPlayOnEntity", JSON.stringify(readyEvent));
-                } else {
-                    messageData.timeStamp = timeStamp;
-                    messageData.action = "ping";
-                    var message = JSON.stringify(messageData);
-                    Messages.sendMessage("videoPlayOnEntity", message);
-                }
+                messageData.timeStamp = timeStamp;
+                messageData.action = "ping";
+                var message = JSON.stringify(messageData);
+                Messages.sendMessage("videoPlayOnEntity", message);
             }
         }, 1000);
     }
