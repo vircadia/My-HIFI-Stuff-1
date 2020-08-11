@@ -105,8 +105,7 @@
                 timeoutIs = false;
                 var readyEvent = {
                     "action": "play",
-                    "timeStamp": this.value,
-                    "nowVideo": "false"
+                    "timeStamp": parseInt(this.value)
                 };
                 EventBridge.emitWebEvent(JSON.stringify(readyEvent));
             }, 1000);
