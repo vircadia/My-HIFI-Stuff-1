@@ -8,6 +8,9 @@
     var videoUrl;
     var timeStampInterval;
     var thisTimeout;
+    var isLooping = false;
+    var videoLength;
+    var restartVideo = false;
 
     function onMessageReceived(channel, message, sender, localOnly) {
         if (channel != "videoPlayOnEntity") {
@@ -19,6 +22,7 @@
         stopPausEvent();
         pause = "stop";
         if (messageData.action == "now") {
+            isLooping = false;
             timeStamp = messageData.timeStamp;
             videoUrl = messageData.videoUrl;
             if (intervalIsRunning == "yes") {
@@ -52,6 +56,11 @@
                 Messages.sendMessage("videoPlayOnEntity", message);
             }, 600);
 
+        } else if (messageData.action == "loop") {
+            isLooping = true;
+            videoLength = messageData.videoLength;
+        } else if (messageData.action == "stopLoop") {
+            isLooping = false;
         }
     }
 
@@ -61,10 +70,19 @@
             pingTimer = pingTimer + 1;
             if (pingTimer == 60) {
                 pingTimer = 0;
-                messageData.timeStamp = timeStamp;
-                messageData.action = "ping";
-                var message = JSON.stringify(messageData);
-                Messages.sendMessage("videoPlayOnEntity", message);
+                if (isLooping && timeStamp > videoLength) {
+                    var readyEvent = {
+                        "action": "play",
+                        "timeStamp": 0,
+                        "nowVideo": "false"
+                    };
+                    Messages.sendMessage("videoPlayOnEntity", JSON.stringify(readyEvent));
+                } else {
+                    messageData.timeStamp = timeStamp;
+                    messageData.action = "ping";
+                    var message = JSON.stringify(messageData);
+                    Messages.sendMessage("videoPlayOnEntity", message);
+                }
             }
         }, 1000);
     }
@@ -78,7 +96,7 @@
     Messages.subscribe("videoPlayOnEntity");
     Messages.messageReceived.connect(onMessageReceived);
 
-    this.unload = function() {
+    this.unload = function () {
         Messages.unsubscribe("videoPlayOnEntity");
         Messages.messageReceived.disconnect(onMessageReceived);
         if (intervalIsRunning == "yes") {
