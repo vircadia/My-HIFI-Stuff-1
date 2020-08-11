@@ -41,7 +41,7 @@
             font-style: normal;
             height: 47px;
             line-height: 47px;
-            width: 158px;
+            width: 180px;
             text-decoration: none;
             text-align: center;
             text-shadow: 1px 1px 0px #aade7c;
@@ -58,6 +58,19 @@
             position: relative;
             top: 1px;
         }
+        
+        #video-container-play-button {
+            width: 100vw;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-position: center center;
+            background-color: rgba(0, 0, 0, 0.5);
+            background-image: url('assets/play_btn.png');
+        }
 
         *::-webkit-media-controls-panel {
             display: none !important;
@@ -70,9 +83,10 @@
 <body>
 
     <body bgcolor="#333333">
-        <button class="buttonChoose" onclick="requestSync()" type="button">Request Sync</button><br>
-        <div id="video-container">
-            <video id="v1" poster="joinIn.gif" controls autoplay>
+        <button class="buttonChoose" onclick="requestSync()" type="button">Press to Watch</button><br>
+        <div id="video-container" onclick="videoPlayerOnClicked()">
+            <div id="video-container-play-button" onclick="videoPlayerOnClicked"></div>
+            <video id="v1" poster="assets/play_btn.png" controls autoplay>
                 <source id="mp4_src" src=" " type="video/webm">
             </video>
         </div>
@@ -84,6 +98,13 @@
             var firstTime = "yes";
             var inCharge = "no";
             var requestSyncWaiting;
+            
+            function videoPlayerOnClicked() {
+                if (firstTime === "yes") {
+                    document.getElementById('video-container-play-button').style.display = "none";
+                    requestSync();
+                }
+            }
 
             function requestSync() {
                 var readyEvent = {
