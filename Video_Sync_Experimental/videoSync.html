@@ -98,7 +98,6 @@
             var firstTime = "yes";
             var inCharge = "no";
             var requestSyncWaiting;
-            var videoSyncInterfaceTimeStamp;
 
             function videoPlayerOnClicked() {
                 if (firstTime === "yes") {
@@ -128,19 +127,17 @@
                     person = messageData.videoUrl;
                     inCharge = "no";
                     firstTime = "no";
-                    if (messageData.myTimeStamp == videoSyncInterfaceTimeStamp) {
                         var vid = document.getElementById("v1");
                         vid.onloadeddata = function () {
-                            var v1 = document.getElementById('v1');
+                            var v = document.getElementById('v1');
                             var readyEvent = {
                                 "action": "RequestVideoLengthAndTimeStampResponse",
-                                "length": v1.duration,
-                                "timeStamp": v1.currentTime,
-                                "myTimeStamp": videoSyncInterfaceTimeStamp
+                                "length": v.duration,
+                                "timeStamp": v.currentTime,
+                                "myTimeStamp": messageData.myTimeStamp
                             };
                             EventBridge.emitWebEvent(JSON.stringify(readyEvent));
                         };
-                    }
                 } else if (messageData.action == "sync") {
                     if (firstTime == "yes") {
                         document.getElementById("v1").src = messageData.videoUrl;
@@ -162,7 +159,6 @@
                     }
                 } else if (messageData.action == "requestTimestamp") {
                     var v1 = document.getElementById('v1');
-                    videoSyncInterfaceTimeStamp = messageData.myTimeStamp;
                     var readyEvent = {
                         "action": "requestTimestampResponse",
                         "timeStamp": v1.currentTime,
