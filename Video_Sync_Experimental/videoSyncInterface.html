@@ -149,9 +149,11 @@
     EventBridge.scriptEventReceived.connect(function (message) {
         var messageData = JSON.parse(message);
         if (messageData.action == "RequestVideoLengthAndTimeStampResponse") {
-            document.getElementById("videoRange").max = messageData.length;
-            document.getElementById("videoRange").value = messageData.timeStamp;
-            videoLength = messageData.length;
+            if (messageData.myTimeStamp == myTimeStamp) {
+                document.getElementById("videoRange").max = messageData.length;
+                document.getElementById("videoRange").value = messageData.timeStamp;
+                videoLength = messageData.length;
+            }
         }
     });
 
