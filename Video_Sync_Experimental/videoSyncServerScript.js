@@ -10,6 +10,7 @@
     var thisTimeout;
     var isLooping = false;
     var videoLength;
+    var videoPlaying = false;
     var restartVideo = false;
 
     function onMessageReceived(channel, message, sender, localOnly) {
@@ -23,6 +24,7 @@
         pause = "stop";
         if (messageData.action == "now") {
             isLooping = false;
+            videoPlaying = true;
             timeStamp = messageData.timeStamp;
             videoUrl = messageData.videoUrl;
             if (intervalIsRunning == "yes") {
@@ -61,6 +63,13 @@
             videoLength = messageData.videoLength;
         } else if (messageData.action == "stopLoop") {
             isLooping = false;
+        } else if (messageData.action == "requestVideoPlayingStatus") {
+            var readyEvent = {
+                action: "requestVideoPlayingStatusReply",
+                VideoPlayingStatus: videoPlaying
+            };
+            var message = JSON.stringify(readyEvent);
+            Messages.sendMessage("videoPlayOnEntity", message);
         }
     }
 

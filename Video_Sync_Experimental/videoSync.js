@@ -68,6 +68,8 @@
             } else if (messageData.uuid == pauseButtonUuid) {
                 sendMessage(message);
             }
+        }else if (messageData.action == "requestVideoPlayingStatusReply") {
+            sendMessage(message);
         } else if (messageData.action == "volumeButton") {
             if (messageData.uuid == volumeButtonMinus) {
                 sendMessage(message);

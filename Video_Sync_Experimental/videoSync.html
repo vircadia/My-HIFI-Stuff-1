@@ -58,7 +58,7 @@
             position: relative;
             top: 1px;
         }
-        
+
         #video-container-play-button {
             width: 100vw;
             height: 100vh;
@@ -80,7 +80,7 @@
 
 </head>
 
-<body>
+<body onload="requestVideoPlayingStatus()">
 
     <body bgcolor="#333333">
         <div id="video-container" onclick="videoPlayerOnClicked()">
@@ -112,10 +112,29 @@
                 EventBridge.emitWebEvent(JSON.stringify(readyEvent));
             }
 
+            function requestVideoPlayingStatus() {
+                var readyEvent = {
+                    "action": "requestVideoPlayingStatus",
+                };
+                EventBridge.emitWebEvent(JSON.stringify(readyEvent));
+            }
+
             EventBridge.scriptEventReceived.connect(function (message) {
 
                 var messageData = JSON.parse(message);
                 if (messageData.check == myTimeStamp) {
+                } else if (messageData.action == "requestVideoPlayingStatusReply") {
+                    if (firstTime === "yes") {
+                        if (messageData.VideoPlayingStatus) {
+                            // What will happen if a video is playing
+
+
+                        } else if (!messageData.VideoPlayingStatus) {
+                            // What will happen if a video is not playing
+
+
+                        }
+                    }
                 } else if (messageData.action == "play") {
                     document.getElementById('v1').play();
                     document.getElementById('v1').currentTime = messageData.timeStamp;
@@ -126,17 +145,17 @@
                     person = messageData.videoUrl;
                     inCharge = "no";
                     firstTime = "no";
-                        var vid = document.getElementById("v1");
-                        vid.onloadeddata = function () {
-                            var v = document.getElementById('v1');
-                            var readyEvent = {
-                                "action": "RequestVideoLengthAndTimeStampResponse",
-                                "length": v.duration,
-                                "timeStamp": v.currentTime,
-                                "myTimeStamp": messageData.myTimeStamp
-                            };
-                            EventBridge.emitWebEvent(JSON.stringify(readyEvent));
+                    var vid = document.getElementById("v1");
+                    vid.onloadeddata = function () {
+                        var v = document.getElementById('v1');
+                        var readyEvent = {
+                            "action": "RequestVideoLengthAndTimeStampResponse",
+                            "length": v.duration,
+                            "timeStamp": v.currentTime,
+                            "myTimeStamp": messageData.myTimeStamp
                         };
+                        EventBridge.emitWebEvent(JSON.stringify(readyEvent));
+                    };
                 } else if (messageData.action == "sync") {
                     if (firstTime == "yes") {
                         document.getElementById("v1").src = messageData.videoUrl;
