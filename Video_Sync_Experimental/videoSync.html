@@ -127,11 +127,11 @@
                     if (firstTime === "yes") {
                         if (messageData.VideoPlayingStatus) {
                             // What will happen if a video is playing
-
+                            document.getElementById('v1').poster = "assets/videoInProgress.png"
 
                         } else if (!messageData.VideoPlayingStatus) {
                             // What will happen if a video is not playing
-
+                            document.getElementById('v1').poster = "assets/waitingOnVideo.png"
 
                         }
                     }
