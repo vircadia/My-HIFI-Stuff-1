@@ -83,7 +83,7 @@
 <body onload="requestVideoPlayingStatus()">
 
     <body bgcolor="#333333">
-        <div id="video-container" onclick="videoPlayerOnClicked">
+        <div id="video-container" onclick="videoPlayerOnClicked()">
             <video id="v1" poster="assets/play_btn.png" controls autoplay>
                 <source id="mp4_src" src=" " type="video/webm">
             </video>
@@ -106,6 +106,7 @@
             function requestSync() {
                 var readyEvent = {
                     "action": "requestSync",
+                    "myTimeStamp": myTimeStamp
                 };
                 EventBridge.emitWebEvent(JSON.stringify(readyEvent));
             }
