@@ -83,8 +83,7 @@
 <body onload="requestVideoPlayingStatus()">
 
     <body bgcolor="#333333">
-        <div id="video-container" onclick="videoPlayerOnClicked()">
-            <div id="video-container-play-button" onmousedown="videoPlayerOnClicked"></div>
+        <div id="video-container" onclick="videoPlayerOnClicked">
             <video id="v1" poster="assets/play_btn.png" controls autoplay>
                 <source id="mp4_src" src=" " type="video/webm">
             </video>
@@ -100,7 +99,6 @@
 
             function videoPlayerOnClicked() {
                 if (firstTime === "yes") {
-                    document.getElementById('video-container-play-button').style.display = "none";
                     requestSync();
                 }
             }

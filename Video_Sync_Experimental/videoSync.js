@@ -63,28 +63,20 @@
         }
         messageData = JSON.parse(message);
         if (messageData.action == "requestTimestamp") {
-            if (messageData.uuid == playButtonUuid) {
-                sendMessage(message);
-            } else if (messageData.uuid == pauseButtonUuid) {
+            if (messageData.uuid == playButtonUuid || messageData.uuid == pauseButtonUuid) {
                 sendMessage(message);
             }
         }else if (messageData.action == "requestVideoPlayingStatusReply") {
             sendMessage(message);
         } else if (messageData.action == "volumeButton") {
-            if (messageData.uuid == volumeButtonMinus) {
-                sendMessage(message);
-            } else if (messageData.uuid == volumeButtonPlus) {
+            if (messageData.uuid == volumeButtonMinus || messageData.uuid == volumeButtonPlus) {
                 sendMessage(message);
             }
         } else if (!hasBeenSynced) {
-            if (messageData.action == "sync" && messageData.action != "now") {
+            if (messageData.action == "sync" || messageData.action != "now") {
                 sendMessage(message);
                 hasBeenSynced = true;
-                editButtons();
-            } else if (messageData.action == "now") {
-                sendMessage(message);
-                hasBeenSynced = true;
-                editButtons();
+                makeControlButtonsVisible();
             }
         } else if (messageData.action == "ping" && hasBeenSynced) {
             sendMessage(message);
@@ -93,7 +85,7 @@
         }
     }
 
-    function editButtons() {
+    function makeControlButtonsVisible() {
         if (Entities.canRez() == true) {
             
             Entities.editEntity(videoInterfaceButton, {
