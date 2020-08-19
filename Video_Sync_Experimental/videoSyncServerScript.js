@@ -95,6 +95,12 @@
                 Script.clearInterval(timeStampInterval);
                 intervalIsRunning = "no";
                 videoPlaying = false;
+                var readyEvent = {
+                    action: "requestVideoPlayingStatusReply",
+                    VideoPlayingStatus: videoPlaying
+                };
+                var message = JSON.stringify(readyEvent);
+                Messages.sendMessage("videoPlayOnEntity", message);
             }
             if (pingTimer == 60) {
                 pingTimer = 0;
