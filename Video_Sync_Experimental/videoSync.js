@@ -54,7 +54,7 @@
         if (uuid == _uuid) {
             messageData = JSON.parse(event);
             console.log("Yes " + event);
-            if (messageData.requestSync) {
+            if (messageData.action == "requestSync") {
                 HtmlTimeStamp = messageData.myTimeStamp;
             }
             Messages.sendMessage("videoPlayOnEntity", event);
@@ -70,14 +70,21 @@
             if (messageData.uuid == playButtonUuid || messageData.uuid == pauseButtonUuid) {
                 sendMessage(message);
             }
-        }else if (messageData.action == "requestVideoPlayingStatusReply") {
+        } else if (messageData.action == "requestVideoPlayingStatusReply") {
             sendMessage(message);
         } else if (messageData.action == "volumeButton") {
             if (messageData.uuid == volumeButtonMinus || messageData.uuid == volumeButtonPlus) {
                 sendMessage(message);
             }
         } else if (!hasBeenSynced) {
-            if (messageData.action == "sync" || messageData.action == "now") {
+            console.log(messageData.myTimeStamp + " " + HtmlTimeStamp);
+            if (messageData.action == "sync" && messageData.action != "now") {
+                if (messageData.myTimeStamp == HtmlTimeStamp) {
+                    sendMessage(message);
+                    hasBeenSynced = true;
+                    makeControlButtonsVisible();
+                }
+            } else if (messageData.action == "now" && hasBeenSynced) {
                 sendMessage(message);
                 hasBeenSynced = true;
                 makeControlButtonsVisible();
@@ -91,7 +98,7 @@
 
     function makeControlButtonsVisible() {
         if (Entities.canRez() == true) {
-            
+
             Entities.editEntity(videoInterfaceButton, {
                 visible: true,
                 script: videoSyncInterface,
@@ -99,7 +106,7 @@
                     "Button": "pause"
                 })
             });
-            
+
             Entities.editEntity(playButtonUuid, {
                 visible: true,
                 script: playPauseButtonUrl,
@@ -115,7 +122,7 @@
                     "Button": "pause"
                 })
             });
-            
+
         }
     }
 
@@ -138,7 +145,7 @@
                     "grabbable": false,
                 }
             }, "local");
-            
+
             playButtonUuid = Entities.addEntity({
                 type: "Model",
                 modelURL: playButtonFbxUrl,
@@ -158,7 +165,7 @@
                     "grabbable": false,
                 }
             }, "local");
-    
+
             pauseButtonUuid = Entities.addEntity({
                 type: "Model",
                 modelURL: pauseButtonURL,
@@ -220,11 +227,11 @@
                 "grabbable": false,
             }
         }, "local");
-        
+
         Entities.editEntity(uuid, {
             rotation: entity.rotation
         });
-        
+
     }
 
     function sendMessage(message) {
@@ -252,9 +259,9 @@
                 Entities.editEntity(uuid, {
                     rotation: originalRotation,
                 });
-                
+
                 if (Entities.canRez() == true) {
-                    
+
                     Entities.editEntity(videoInterfaceButton, {
                         position: {
                             "x": entity.position.x - entity.dimensions.x / 2 - -0.5,
@@ -262,7 +269,7 @@
                             "z": entity.position.z
                         },
                     });
-                
+
                     Entities.editEntity(playButtonUuid, {
                         position: {
                             "x": entity.position.x - entity.dimensions.x / 2 - -0.2,
@@ -270,7 +277,7 @@
                             "z": entity.position.z
                         }
                     });
-    
+
                     Entities.editEntity(pauseButtonUuid, {
                         position: {
                             "x": entity.position.x - entity.dimensions.x / 2 - -0.5,
@@ -278,7 +285,7 @@
                             "z": entity.position.z
                         }
                     });
-                    
+
                 }
 
                 Entities.editEntity(volumeButtonMinus, {
