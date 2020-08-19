@@ -73,7 +73,7 @@
                 sendMessage(message);
             }
         } else if (!hasBeenSynced) {
-            if (messageData.action == "sync" || messageData.action != "now") {
+            if (messageData.action == "sync" || messageData.action == "now") {
                 sendMessage(message);
                 hasBeenSynced = true;
                 makeControlButtonsVisible();
