@@ -78,6 +78,12 @@
         } else if (messageData.action == "RequestVideoLengthAndTimeStampResponse" && messageData.myTimeStamp == newVideoSender) {
             videoLength = messageData.length;
             newVideoSent = false;
+            var readyEvent = {
+                action: "requestVideoPlayingStatusReply",
+                VideoPlayingStatus: videoPlaying
+            };
+            var message = JSON.stringify(readyEvent);
+            Messages.sendMessage("videoPlayOnEntity", message);
         }
     }
 
