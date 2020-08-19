@@ -54,7 +54,7 @@
         if (uuid == _uuid) {
             messageData = JSON.parse(event);
             console.log("Yes " + event);
-            if (messageData.requestSync) {
+            if (messageData.action == "requestSync") {
                 HtmlTimeStamp = messageData.myTimeStamp;
             }
             Messages.sendMessage("videoPlayOnEntity", event);
@@ -77,6 +77,7 @@
                 sendMessage(message);
             }
         } else if (!hasBeenSynced) {
+            console.log(messageData.myTimeStamp + " " + HtmlTimeStamp);
             if (messageData.action == "sync" && messageData.action != "now") {
                 if (messageData.myTimeStamp == HtmlTimeStamp) {
                     sendMessage(message);
