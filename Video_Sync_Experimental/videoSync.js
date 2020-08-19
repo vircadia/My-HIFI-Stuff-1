@@ -19,6 +19,7 @@
     var pauseButtonUuid;
     var originalRotation;
     var reorientButtonsInProgress = false;
+    var HtmlTimeStamp;
 
     var sourceUrl = Script.resolvePath("videoSync.html" + "?" + Date.now());
     script.preload = function (entityID) {
@@ -53,6 +54,9 @@
         if (uuid == _uuid) {
             messageData = JSON.parse(event);
             console.log("Yes " + event);
+            if (messageData.requestSync) {
+                HtmlTimeStamp = messageData.myTimeStamp;
+            }
             Messages.sendMessage("videoPlayOnEntity", event);
         }
     }
