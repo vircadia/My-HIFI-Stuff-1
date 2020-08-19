@@ -56,7 +56,8 @@
                     action: "sync",
                     timeStamp: timeStamp,
                     videoUrl: videoUrl,
-                    nowVideo: "false"
+                    nowVideo: "false",
+                    myTimeStamp: messageData.myTimeStamp
                 };
                 var message = JSON.stringify(readyEvent);
                 Messages.sendMessage("videoPlayOnEntity", message);
