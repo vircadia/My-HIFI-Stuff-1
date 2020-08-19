@@ -96,6 +96,7 @@
             var firstTime = "yes";
             var inCharge = "no";
             var requestSyncWaiting;
+            var VideoPlayingStatus;
 
             function videoPlayerOnClicked() {
                 if (firstTime === "yes") {
@@ -124,6 +125,7 @@
                 if (messageData.check == myTimeStamp) {
                 } else if (messageData.action == "requestVideoPlayingStatusReply") {
                     if (firstTime === "yes") {
+                        VideoPlayingStatus = messageData.VideoPlayingStatus;
                         if (messageData.VideoPlayingStatus) {
                             // What will happen if a video is playing
                             document.getElementById('v1').poster = "assets/videoInProgress.png"
@@ -157,12 +159,17 @@
                     };
                 } else if (messageData.action == "sync") {
                     if (firstTime == "yes") {
-                        document.getElementById("v1").src = messageData.videoUrl;
-                        document.getElementById('v1').currentTime = messageData.timeStamp;
-                        person = messageData.videoUrl;
-                        firstTime = "no";
-                        inCharge = "no";
-                        clearTimeout(requestSyncWaiting);
+                        if (!VideoPlayingStatus) {
+                            document.getElementById('v1').poster = "assets/WaitingOnVideoAfterClick.png"
+                            firstTime = "no";
+                        } else {
+                            document.getElementById("v1").src = messageData.videoUrl;
+                            document.getElementById('v1').currentTime = messageData.timeStamp;
+                            person = messageData.videoUrl;
+                            firstTime = "no";
+                            inCharge = "no";
+                            clearTimeout(requestSyncWaiting);
+                        }
                     }
                 } else if (messageData.action == "ping") {
                     var v1 = document.getElementById('v1');
