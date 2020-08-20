@@ -115,6 +115,12 @@
                 };
                 var message = JSON.stringify(readyEvent);
                 Messages.sendMessage("videoPlayOnEntity", message);
+
+                var readyEvent = {
+                    action: "videoEnd",
+                };
+                var message = JSON.stringify(readyEvent);
+                Messages.sendMessage("videoPlayOnEntity", message);
             }
             if (pingTimer == 60) {
                 pingTimer = 0;
