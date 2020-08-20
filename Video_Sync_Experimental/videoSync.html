@@ -206,6 +206,9 @@
                         "myTimeStamp": messageData.myTimeStamp
                     };
                     EventBridge.emitWebEvent(JSON.stringify(readyEvent));
+                } else if (messageData.action == "videoEnd") {
+                    document.getElementById("v1").src = "";
+                    document.getElementById('v1').poster = "assets/waitingOnVideo.png"
                 }
             });
 
