@@ -43,7 +43,14 @@
                 Script.clearInterval(timeStampInterval);
             }
             intervalIsRunning = "yes";
+            videoPlaying = true;
             ping();
+            var readyEvent = {
+                action: "requestVideoPlayingStatusReply",
+                VideoPlayingStatus: videoPlaying
+            };
+            var message = JSON.stringify(readyEvent);
+            Messages.sendMessage("videoPlayOnEntity", message);
 
         } else if (messageData.action == "pause") {
             Script.clearInterval(timeStampInterval);
