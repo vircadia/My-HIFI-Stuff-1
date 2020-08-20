@@ -14,7 +14,6 @@
     var videoPlaying = false;
     var newVideoSent = false;
     var newVideoSender;
-    var restartVideo = false;
 
     function onMessageReceived(channel, message, sender, localOnly) {
         if (channel != "videoPlayOnEntity") {
@@ -27,6 +26,7 @@
         pause = "stop";
         if (messageData.action == "now") {
             isLooping = false;
+            isLoopingStartAtBeginning = false;
             videoPlaying = true;
             newVideoSent = true;
             newVideoSender = messageData.myTimeStamp;
@@ -124,6 +124,17 @@
             };
             var message = JSON.stringify(readyEvent);
             Messages.sendMessage("videoPlayOnEntity", message);
+        } else if (messageData.action == "RequestVideoLengthAndTimeStampResponse") {
+            videoLength = messageData.length;
+            newVideoSent = false;
+            var readyEvent = {
+                action: "requestVideoPlayingStatusServerReply",
+                VideoPlayingStatus: videoPlaying,
+                isLooping: isLooping,
+                isLoopingStartAtBeginning: isLoopingStartAtBeginning
+            };
+            var message = JSON.stringify(readyEvent);
+            Messages.sendMessage("videoPlayOnEntity", message);
         }
     }
 
@@ -138,11 +149,7 @@
                     "nowVideo": "false"
                 };
                 Messages.sendMessage("videoPlayOnEntity", JSON.stringify(readyEvent));
-                console.log("isLooping: " + isLooping);
-                console.log("isLoopingStartAtBeginning: " + isLoopingStartAtBeginning);
             } else if (!isLooping && timeStamp > videoLength) {
-                console.log("isLooping: " + isLooping);
-                console.log("isLoopingStartAtBeginning: " + isLoopingStartAtBeginning);
                 Script.clearInterval(timeStampInterval);
                 intervalIsRunning = "no";
                 videoPlaying = false;
