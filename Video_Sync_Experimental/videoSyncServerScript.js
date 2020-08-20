@@ -9,6 +9,7 @@
     var timeStampInterval;
     var thisTimeout;
     var isLooping = false;
+    var isLoopingStartAtBeginning = false;
     var videoLength;
     var videoPlaying = false;
     var newVideoSent = false;
@@ -58,27 +59,57 @@
         } else if (messageData.action == "sync") {
             timeStamp = messageData.timeStamp;
         } else if (messageData.action == "requestSync") {
-            Script.setTimeout(function () {
-                var readyEvent = {
-                    action: "sync",
-                    timeStamp: timeStamp,
-                    videoUrl: videoUrl,
-                    nowVideo: "false",
-                    myTimeStamp: messageData.myTimeStamp
-                };
-                var message = JSON.stringify(readyEvent);
-                Messages.sendMessage("videoPlayOnEntity", message);
-            }, 600);
-
+            if (!videoPlaying && isLoopingStartAtBeginning) {
+                Script.setTimeout(function () {
+                    var readyEvent = {
+                        action: "sync",
+                        timeStamp: 0,
+                        videoUrl: videoUrl,
+                        nowVideo: "false",
+                        myTimeStamp: messageData.myTimeStamp
+                    };
+                    var message = JSON.stringify(readyEvent);
+                    Messages.sendMessage("videoPlayOnEntity", message);
+                    intervalIsRunning = "yes";
+                    videoPlaying = true;
+                    timeStamp = 0;
+                    ping();
+                }, 600);
+            } else {
+                Script.setTimeout(function () {
+                    var readyEvent = {
+                        action: "sync",
+                        timeStamp: timeStamp,
+                        videoUrl: videoUrl,
+                        nowVideo: "false",
+                        myTimeStamp: messageData.myTimeStamp
+                    };
+                    var message = JSON.stringify(readyEvent);
+                    Messages.sendMessage("videoPlayOnEntity", message);
+                }, 600);
+            }
         } else if (messageData.action == "loop") {
+            isLoopingStartAtBeginning = false;
             isLooping = true;
             videoLength = messageData.videoLength;
+        } else if (messageData.action == "loopVideoStartAtBeginning") {
+            isLooping = false;
+            isLoopingStartAtBeginning = true;
+            videoLength = messageData.videoLength;
+            console.log("isLooping: " + isLooping);
+            console.log("isLoopingStartAtBeginning: " + isLoopingStartAtBeginning);
         } else if (messageData.action == "stopLoop") {
+            isLoopingStartAtBeginning = false;
             isLooping = false;
         } else if (messageData.action == "requestVideoPlayingStatus") {
+            if (isLoopingStartAtBeginning) {
+                var VideoPlayingStatus = true;
+            } else {
+                var VideoPlayingStatus = videoPlaying;
+            }
             var readyEvent = {
                 action: "requestVideoPlayingStatusReply",
-                VideoPlayingStatus: videoPlaying
+                VideoPlayingStatus: VideoPlayingStatus
             };
             var message = JSON.stringify(readyEvent);
             Messages.sendMessage("videoPlayOnEntity", message);
@@ -87,7 +118,9 @@
             newVideoSent = false;
             var readyEvent = {
                 action: "requestVideoPlayingStatusReply",
-                VideoPlayingStatus: videoPlaying
+                VideoPlayingStatus: videoPlaying,
+                isLooping: isLooping,
+                isLoopingStartAtBeginning: isLoopingStartAtBeginning
             };
             var message = JSON.stringify(readyEvent);
             Messages.sendMessage("videoPlayOnEntity", message);
@@ -105,7 +138,11 @@
                     "nowVideo": "false"
                 };
                 Messages.sendMessage("videoPlayOnEntity", JSON.stringify(readyEvent));
+                console.log("isLooping: " + isLooping);
+                console.log("isLoopingStartAtBeginning: " + isLoopingStartAtBeginning);
             } else if (!isLooping && timeStamp > videoLength) {
+                console.log("isLooping: " + isLooping);
+                console.log("isLoopingStartAtBeginning: " + isLoopingStartAtBeginning);
                 Script.clearInterval(timeStampInterval);
                 intervalIsRunning = "no";
                 videoPlaying = false;
