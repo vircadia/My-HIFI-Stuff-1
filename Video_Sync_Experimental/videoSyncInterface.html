@@ -164,7 +164,8 @@
         if (myButtonActivated == 0) {
             var readyEvent = {
                 "action": "loop",
-                "videoLength": videoLength
+                "videoLength": videoLength,
+                "myTimeStamp": myTimeStamp
             };
             EventBridge.emitWebEvent(JSON.stringify(readyEvent));
             document.getElementById("loopVideoButton").innerHTML = "Loop Video Start At Beginning";
@@ -173,7 +174,8 @@
         } else if (myButtonActivated == 1) {
             var readyEvent = {
                 "action": "loopVideoStartAtBeginning",
-                "videoLength": videoLength
+                "videoLength": videoLength,
+                "myTimeStamp": myTimeStamp
             };
             EventBridge.emitWebEvent(JSON.stringify(readyEvent));
             document.getElementById("loopVideoButton").innerHTML = "Stop Looping Video";
@@ -181,7 +183,8 @@
             myButtonActivated = 2;
         } else if (myButtonActivated == 2) {
             var readyEvent = {
-                "action": "stopLoop"
+                "action": "stopLoop",
+                "myTimeStamp": myTimeStamp
             };
             EventBridge.emitWebEvent(JSON.stringify(readyEvent));
             document.getElementById("loopVideoButton").innerHTML = "Loop Video";
@@ -208,7 +211,18 @@
                 document.getElementById("checkMark").innerHTML = "<h3><span>&#10003;</span> Loop Video Start At Beginning</h3>";
                 myButtonActivated = 2;
             }
-            //document.getElementById("loopVideoButton").
+        } else if (messageData.action == "loop" && messageData.myTimeStamp != myTimeStamp) {
+            document.getElementById("loopVideoButton").innerHTML = "Loop Video Start At Beginning";
+            document.getElementById("checkMark").innerHTML = "<h3><span>&#10003;</span> Loop</h3>";
+            myButtonActivated = 1;
+        } else if (messageData.action == "loopVideoStartAtBeginning" && messageData.myTimeStamp != myTimeStamp) {
+            document.getElementById("loopVideoButton").innerHTML = "Stop Looping Video";
+            document.getElementById("checkMark").innerHTML = "<h3><span>&#10003;</span> Loop Video Start At Beginning</h3>";
+            myButtonActivated = 2;
+        } else if (messageData.action == "stopLoop" && messageData.myTimeStamp != myTimeStamp) {
+            document.getElementById("loopVideoButton").innerHTML = "Loop Video";
+            document.getElementById("checkMark").innerHTML = "";
+            myButtonActivated = 0;
         }
     });
 
