@@ -109,7 +109,8 @@
             }
             var readyEvent = {
                 action: "requestVideoPlayingStatusReply",
-                VideoPlayingStatus: VideoPlayingStatus
+                VideoPlayingStatus: videoPlaying,
+                isLoopingStartAtBeginning: isLoopingStartAtBeginning
             };
             var message = JSON.stringify(readyEvent);
             Messages.sendMessage("videoPlayOnEntity", message);
