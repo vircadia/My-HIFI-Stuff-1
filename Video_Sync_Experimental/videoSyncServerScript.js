@@ -37,6 +37,14 @@
             }
             intervalIsRunning = "yes";
             ping();
+            var readyEvent = {
+                action: "requestVideoPlayingStatusServerReply",
+                VideoPlayingStatus: videoPlaying,
+                isLooping: isLooping,
+                isLoopingStartAtBeginning: isLoopingStartAtBeginning
+            };
+            var message = JSON.stringify(readyEvent);
+            Messages.sendMessage("videoPlayOnEntity", message);
 
         } else if (messageData.action == "play") {
             timeStamp = messageData.timeStamp;
