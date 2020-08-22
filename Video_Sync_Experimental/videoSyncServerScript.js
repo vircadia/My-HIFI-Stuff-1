@@ -49,7 +49,6 @@
             var readyEvent = {
                 action: "requestVideoPlayingStatusReply",
                 VideoPlayingStatus: videoPlaying,
-                1: 1
             };
             var message = JSON.stringify(readyEvent);
             Messages.sendMessage("videoPlayOnEntity", message);
