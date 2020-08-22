@@ -129,6 +129,7 @@
                 } else if (messageData.action == "requestVideoPlayingStatusReply") {
                     if (firstTime === "yes") {
                         VideoPlayingStatus = messageData.VideoPlayingStatus;
+                        isLoopingStartAtBeginning = messageData.isLoopingStartAtBeginning;
                         if (messageData.VideoPlayingStatus) {
                             document.getElementById('v1').poster = "assets/videoInProgress.png"
                         } else if (!messageData.VideoPlayingStatus) {
@@ -162,10 +163,18 @@
                     };
                 } else if (messageData.action == "sync" && messageData.myTimeStamp == myTimeStamp) {
                     if (firstTime == "yes") {
-                        if (!VideoPlayingStatus) {
+                        isLoopingStartAtBeginning = messageData.isLoopingStartAtBeginning;
+                        if (!VideoPlayingStatus && !isLoopingStartAtBeginning) {
                             document.getElementById('v1').poster = "assets/WaitingOnVideoAfterClick.png"
                             firstTime = "no";
                         } else if (VideoPlayingStatus) {
+                            document.getElementById("v1").src = messageData.videoUrl;
+                            document.getElementById('v1').currentTime = messageData.timeStamp;
+                            person = messageData.videoUrl;
+                            firstTime = "no";
+                            inCharge = "no";
+                            clearTimeout(requestSyncWaiting);
+                        } else if (!VideoPlayingStatus && isLoopingStartAtBeginning) {
                             document.getElementById("v1").src = messageData.videoUrl;
                             document.getElementById('v1').currentTime = messageData.timeStamp;
                             person = messageData.videoUrl;
