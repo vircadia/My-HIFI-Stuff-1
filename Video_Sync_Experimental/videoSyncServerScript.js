@@ -66,7 +66,8 @@
                         timeStamp: 0,
                         videoUrl: videoUrl,
                         nowVideo: "false",
-                        myTimeStamp: messageData.myTimeStamp
+                        myTimeStamp: messageData.myTimeStamp,
+                        isLoopingStartAtBeginning: isLoopingStartAtBeginning
                     };
                     var message = JSON.stringify(readyEvent);
                     Messages.sendMessage("videoPlayOnEntity", message);
