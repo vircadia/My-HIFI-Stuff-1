@@ -218,6 +218,11 @@
                 document.getElementById("checkMark").innerHTML = "<h3><span>&#10003;</span> Loop Video Start At Beginning</h3>";
                 document.getElementById("description").innerHTML = "<h3>" + descriptionIsLoopingStartAtBeginning + "</h3>";
                 myButtonActivated = 2;
+            } else if (!messageData.isLooping && !messageData.isLoopingStartAtBeginning) {
+                document.getElementById("loopVideoButton").innerHTML = "Loop Video";
+                document.getElementById("checkMark").innerHTML = "";
+                document.getElementById("description").innerHTML = "";
+                myButtonActivated = 0;
             }
         } else if (messageData.action == "loop" && messageData.myTimeStamp != myTimeStamp) {
             document.getElementById("loopVideoButton").innerHTML = "Loop Video Start At Beginning";
