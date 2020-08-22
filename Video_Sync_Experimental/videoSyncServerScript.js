@@ -9,11 +9,11 @@
     var timeStampInterval;
     var thisTimeout;
     var isLooping = false;
+    var isLoopingStartAtBeginning = false;
     var videoLength;
     var videoPlaying = false;
     var newVideoSent = false;
     var newVideoSender;
-    var restartVideo = false;
 
     function onMessageReceived(channel, message, sender, localOnly) {
         if (channel != "videoPlayOnEntity") {
@@ -26,6 +26,7 @@
         pause = "stop";
         if (messageData.action == "now") {
             isLooping = false;
+            isLoopingStartAtBeginning = false;
             videoPlaying = true;
             newVideoSent = true;
             newVideoSender = messageData.myTimeStamp;
@@ -47,7 +48,7 @@
             ping();
             var readyEvent = {
                 action: "requestVideoPlayingStatusReply",
-                VideoPlayingStatus: videoPlaying
+                VideoPlayingStatus: videoPlaying,
             };
             var message = JSON.stringify(readyEvent);
             Messages.sendMessage("videoPlayOnEntity", message);
@@ -58,27 +59,54 @@
         } else if (messageData.action == "sync") {
             timeStamp = messageData.timeStamp;
         } else if (messageData.action == "requestSync") {
-            Script.setTimeout(function () {
-                var readyEvent = {
-                    action: "sync",
-                    timeStamp: timeStamp,
-                    videoUrl: videoUrl,
-                    nowVideo: "false",
-                    myTimeStamp: messageData.myTimeStamp
-                };
-                var message = JSON.stringify(readyEvent);
-                Messages.sendMessage("videoPlayOnEntity", message);
-            }, 600);
-
+            if (!videoPlaying && isLoopingStartAtBeginning) {
+                Script.setTimeout(function () {
+                    var readyEvent = {
+                        action: "sync",
+                        timeStamp: 0,
+                        videoUrl: videoUrl,
+                        nowVideo: "false",
+                        myTimeStamp: messageData.myTimeStamp,
+                        isLoopingStartAtBeginning: isLoopingStartAtBeginning
+                    };
+                    var message = JSON.stringify(readyEvent);
+                    Messages.sendMessage("videoPlayOnEntity", message);
+                    intervalIsRunning = "yes";
+                    videoPlaying = true;
+                    timeStamp = 0;
+                    ping();
+                }, 600);
+            } else {
+                Script.setTimeout(function () {
+                    var readyEvent = {
+                        action: "sync",
+                        timeStamp: timeStamp,
+                        videoUrl: videoUrl,
+                        nowVideo: "false",
+                        myTimeStamp: messageData.myTimeStamp
+                    };
+                    var message = JSON.stringify(readyEvent);
+                    Messages.sendMessage("videoPlayOnEntity", message);
+                }, 600);
+            }
         } else if (messageData.action == "loop") {
+            isLoopingStartAtBeginning = false;
             isLooping = true;
             videoLength = messageData.videoLength;
+        } else if (messageData.action == "loopVideoStartAtBeginning") {
+            isLooping = false;
+            isLoopingStartAtBeginning = true;
+            videoLength = messageData.videoLength;
+            console.log("isLooping: " + isLooping);
+            console.log("isLoopingStartAtBeginning: " + isLoopingStartAtBeginning);
         } else if (messageData.action == "stopLoop") {
+            isLoopingStartAtBeginning = false;
             isLooping = false;
         } else if (messageData.action == "requestVideoPlayingStatus") {
             var readyEvent = {
                 action: "requestVideoPlayingStatusReply",
-                VideoPlayingStatus: videoPlaying
+                VideoPlayingStatus: videoPlaying,
+                isLoopingStartAtBeginning: isLoopingStartAtBeginning
             };
             var message = JSON.stringify(readyEvent);
             Messages.sendMessage("videoPlayOnEntity", message);
@@ -87,7 +115,20 @@
             newVideoSent = false;
             var readyEvent = {
                 action: "requestVideoPlayingStatusReply",
-                VideoPlayingStatus: videoPlaying
+                VideoPlayingStatus: videoPlaying,
+                isLooping: isLooping,
+                isLoopingStartAtBeginning: isLoopingStartAtBeginning
+            };
+            var message = JSON.stringify(readyEvent);
+            Messages.sendMessage("videoPlayOnEntity", message);
+        } else if (messageData.action == "RequestVideoLengthAndTimeStampResponse") {
+            videoLength = messageData.length;
+            newVideoSent = false;
+            var readyEvent = {
+                action: "requestVideoPlayingStatusServerReply",
+                VideoPlayingStatus: videoPlaying,
+                isLooping: isLooping,
+                isLoopingStartAtBeginning: isLoopingStartAtBeginning
             };
             var message = JSON.stringify(readyEvent);
             Messages.sendMessage("videoPlayOnEntity", message);
@@ -118,6 +159,7 @@
 
                 var readyEvent = {
                     action: "videoEnd",
+                    isLoopingStartAtBeginning: isLoopingStartAtBeginning
                 };
                 var message = JSON.stringify(readyEvent);
                 Messages.sendMessage("videoPlayOnEntity", message);

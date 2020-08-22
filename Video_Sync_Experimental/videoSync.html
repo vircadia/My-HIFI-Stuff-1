@@ -97,9 +97,12 @@
             var inCharge = "no";
             var requestSyncWaiting;
             var VideoPlayingStatus;
+            var isLoopingStartAtBeginning = false;
 
             function videoPlayerOnClicked() {
                 if (firstTime === "yes") {
+                    requestSync();
+                } else if (isLoopingStartAtBeginning) {
                     requestSync();
                 }
             }
@@ -126,14 +129,15 @@
                 } else if (messageData.action == "requestVideoPlayingStatusReply") {
                     if (firstTime === "yes") {
                         VideoPlayingStatus = messageData.VideoPlayingStatus;
+                        isLoopingStartAtBeginning = messageData.isLoopingStartAtBeginning;
                         if (messageData.VideoPlayingStatus) {
-                            // What will happen if a video is playing
                             document.getElementById('v1').poster = "assets/videoInProgress.png"
-
                         } else if (!messageData.VideoPlayingStatus) {
-                            // What will happen if a video is not playing
-                            document.getElementById('v1').poster = "assets/waitingOnVideo.png"
-
+                            if (!messageData.isLoopingStartAtBeginning) {
+                                document.getElementById('v1').poster = "assets/waitingOnVideo.png"
+                            } else {
+                                document.getElementById('v1').poster = "assets/clickToWatch.png"
+                            }
                         }
                     }
                 } else if (messageData.action == "play") {
@@ -157,12 +161,20 @@
                         };
                         EventBridge.emitWebEvent(JSON.stringify(readyEvent));
                     };
-                } else if (messageData.action == "sync") {
+                } else if (messageData.action == "sync" && messageData.myTimeStamp == myTimeStamp) {
                     if (firstTime == "yes") {
-                        if (!VideoPlayingStatus) {
+                        isLoopingStartAtBeginning = messageData.isLoopingStartAtBeginning;
+                        if (!VideoPlayingStatus && !isLoopingStartAtBeginning) {
                             document.getElementById('v1').poster = "assets/WaitingOnVideoAfterClick.png"
                             firstTime = "no";
-                        } else {
+                        } else if (VideoPlayingStatus) {
+                            document.getElementById("v1").src = messageData.videoUrl;
+                            document.getElementById('v1').currentTime = messageData.timeStamp;
+                            person = messageData.videoUrl;
+                            firstTime = "no";
+                            inCharge = "no";
+                            clearTimeout(requestSyncWaiting);
+                        } else if (!VideoPlayingStatus && isLoopingStartAtBeginning) {
                             document.getElementById("v1").src = messageData.videoUrl;
                             document.getElementById('v1').currentTime = messageData.timeStamp;
                             person = messageData.videoUrl;
@@ -170,14 +182,22 @@
                             inCharge = "no";
                             clearTimeout(requestSyncWaiting);
                         }
+                    } else if (isLoopingStartAtBeginning) {
+                        isLoopingStartAtBeginning = false;
+                        document.getElementById("v1").src = messageData.videoUrl;
+                        document.getElementById('v1').currentTime = messageData.timeStamp;
+                        person = messageData.videoUrl;
+                        firstTime = "no";
+                        inCharge = "no";
+                        clearTimeout(requestSyncWaiting);
                     }
                 } else if (messageData.action == "ping") {
                     var v1 = document.getElementById('v1');
-                    myTimeStamp = v1.currentTime;
-                    ping = messageData.timeStamp;
+                    var myVideoCurrentTimeStamp = v1.currentTime;
+                    var ping = messageData.timeStamp;
                     x = ping + 2;
                     y = ping - 2;
-                    if (x > myTimeStamp && y < myTimeStamp) {
+                    if (x > myVideoCurrentTimeStamp && y < myVideoCurrentTimeStamp) {
                     } else {
                         document.getElementById('v1').currentTime = messageData.timeStamp;
                     }
@@ -207,8 +227,15 @@
                     };
                     EventBridge.emitWebEvent(JSON.stringify(readyEvent));
                 } else if (messageData.action == "videoEnd") {
-                    document.getElementById("v1").src = "";
-                    document.getElementById('v1').poster = "assets/WaitingOnVideoAfterClick.png"
+                    if (messageData.isLoopingStartAtBeginning) {
+                        isLoopingStartAtBeginning = true;
+                        document.getElementById("v1").src = "";
+                        document.getElementById('v1').poster = "assets/clickToWatch.png"
+                    } else {
+                        isLoopingStartAtBeginning = false;
+                        document.getElementById("v1").src = "";
+                        document.getElementById('v1').poster = "assets/WaitingOnVideoAfterClick.png"
+                    }
                 }
             });
 
