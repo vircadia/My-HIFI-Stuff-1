@@ -102,11 +102,6 @@
             isLoopingStartAtBeginning = false;
             isLooping = false;
         } else if (messageData.action == "requestVideoPlayingStatus") {
-            if (isLoopingStartAtBeginning) {
-                var VideoPlayingStatus = true;
-            } else {
-                var VideoPlayingStatus = videoPlaying;
-            }
             var readyEvent = {
                 action: "requestVideoPlayingStatusReply",
                 VideoPlayingStatus: videoPlaying,
