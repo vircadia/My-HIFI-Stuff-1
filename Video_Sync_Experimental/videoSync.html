@@ -236,6 +236,13 @@
                         document.getElementById("v1").src = "";
                         document.getElementById('v1').poster = "assets/WaitingOnVideoAfterClick.png"
                     }
+                    if (messageData.sender == "Button") {
+                        var readyEvent = {
+                            "action": "requestVideoPlayingStatus",
+                        };
+                        EventBridge.emitWebEvent(JSON.stringify(readyEvent));
+                        firstTime = "yes";
+                    }
                 }
             });
 

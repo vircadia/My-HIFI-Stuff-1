@@ -167,6 +167,7 @@
 
                 var readyEvent = {
                     action: "videoEnd",
+                    sender: "server",
                     isLoopingStartAtBeginning: isLoopingStartAtBeginning
                 };
                 var message = JSON.stringify(readyEvent);
