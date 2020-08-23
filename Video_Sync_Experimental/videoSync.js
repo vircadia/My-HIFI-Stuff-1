@@ -79,7 +79,7 @@
             if (messageData.uuid == volumeButtonMinus || messageData.uuid == volumeButtonPlus) {
                 sendMessage(message);
             }
-        } else if (messageData.action == "leave") {
+        } else if (messageData.action == "leave" && messageData.uuid == leaveButtonUuid) {
             var readyEvent = {
                 action: "videoEnd",
                 sender: "Button"
