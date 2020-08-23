@@ -5,7 +5,7 @@
     var pingTimer = 0;
     var intervalIsRunning = "no";
     var pause = "og";
-    var videoUrl;
+    var videoUrl = "";
     var timeStampInterval;
     var thisTimeout;
     var isLooping = false;
@@ -41,7 +41,8 @@
                 action: "requestVideoPlayingStatusServerReply",
                 VideoPlayingStatus: videoPlaying,
                 isLooping: isLooping,
-                isLoopingStartAtBeginning: isLoopingStartAtBeginning
+                isLoopingStartAtBeginning: isLoopingStartAtBeginning,
+                videoUrl: videoUrl
             };
             var message = JSON.stringify(readyEvent);
             Messages.sendMessage("videoPlayOnEntity", message);
@@ -136,7 +137,8 @@
                 action: "requestVideoPlayingStatusServerReply",
                 VideoPlayingStatus: videoPlaying,
                 isLooping: isLooping,
-                isLoopingStartAtBeginning: isLoopingStartAtBeginning
+                isLoopingStartAtBeginning: isLoopingStartAtBeginning,
+                videoUrl: videoUrl
             };
             var message = JSON.stringify(readyEvent);
             Messages.sendMessage("videoPlayOnEntity", message);
