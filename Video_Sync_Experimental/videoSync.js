@@ -23,6 +23,7 @@
     var originalRotation;
     var reorientButtonsInProgress = false;
     var HtmlTimeStamp;
+    var haveLeft = false;
 
     var sourceUrl = Script.resolvePath("videoSync.html" + "?" + Date.now());
     script.preload = function (entityID) {
@@ -59,6 +60,10 @@
             console.log("Yes " + event);
             if (messageData.action == "requestSync") {
                 HtmlTimeStamp = messageData.myTimeStamp;
+                if (haveLeft) {
+                    makeControlButtonsVisible();
+                    haveLeft = false;
+                }
             }
             Messages.sendMessage("videoPlayOnEntity", event);
         }
@@ -85,6 +90,8 @@
                 sender: "Button"
             };
             sendMessage(JSON.stringify(readyEvent));
+            haveLeft = true;
+            makeControlButtonsNotVisible();
         } else if (!hasBeenSynced) {
             console.log(messageData.myTimeStamp + " " + HtmlTimeStamp);
             if (messageData.action == "sync" && messageData.action != "now") {
@@ -137,6 +144,34 @@
         Entities.editEntity(leaveButtonUuid, {
             visible: true,
             script: leaveButtonUrl
+        });
+    }
+
+    function makeControlButtonsNotVisible() {
+        
+        if (Entities.canRez() == true) {
+
+            Entities.editEntity(videoInterfaceButton, {
+                visible: false,
+                script: ""
+            });
+
+            Entities.editEntity(playButtonUuid, {
+                visible: false,
+                script: ""
+            });
+
+            Entities.editEntity(pauseButtonUuid, {
+                visible: false,
+                script: ""
+            });
+
+        }
+
+
+        Entities.editEntity(leaveButtonUuid, {
+            visible: false,
+            script: ""
         });
     }
 

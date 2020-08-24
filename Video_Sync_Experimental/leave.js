@@ -1,4 +1,5 @@
 (function () {
+    var _entity;
     var _entityID;
     var myTimeStamp = Date.now();
     this.preload = function (entityID) {
@@ -17,7 +18,7 @@
 
     Messages.subscribe("videoPlayOnEntity");
 
-    this.unload = function () {
+    Script.scriptEnding.connect(function () {
         Messages.unsubscribe("videoPlayOnEntity");
-    }
+    });
 });
