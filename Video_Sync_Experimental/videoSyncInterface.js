@@ -22,9 +22,9 @@
     Messages.subscribe("videoPlayOnEntity");
     Messages.messageReceived.connect(onMessageReceived);
 
-    this.unload = function (entityID) {
+    Script.scriptEnding.connect(function () {
         Messages.unsubscribe("videoPlayOnEntity");
         Messages.messageReceived.disconnect(onMessageReceived);
         tablet.webEventReceived.disconnect(onWebEvent);
-    }
+    });
 });

@@ -44,8 +44,8 @@
         }
     }
 
-    this.unload = function () {
+    Script.scriptEnding.connect(function () {
         Messages.unsubscribe("videoPlayOnEntity");
         Messages.messageReceived.disconnect(onMessageReceived);
-    }
+    });
 });

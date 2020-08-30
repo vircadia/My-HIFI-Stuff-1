@@ -2,11 +2,13 @@
     var playPauseButtonUrl = Script.resolvePath("playPauseButton.js");
     var volumeButtonUrl = Script.resolvePath("volumeButton.js");
     var videoSyncInterface = Script.resolvePath("videoSyncInterface.js");
+    var leaveButtonUrl = Script.resolvePath("leave.js");
     var playButtonFbxUrl = Script.resolvePath("playButton.fbx");
     var pauseButtonURL = Script.resolvePath("pauseButton.fbx");
     var volumeButtonMinusUrl = Script.resolvePath("volumeButtonMinus.fbx");
     var volumeButtonPlusUrl = Script.resolvePath("volumeButtonPlus.fbx");
     var videoInterfaceButton = Script.resolvePath("videoInterfaceButton.fbx");
+    var leaveButtonFbxUrl = Script.resolvePath("leave.fbx");
     var uuid;
     var script = this;
     var self = this;
@@ -17,9 +19,11 @@
     var hasBeenSynced = false;
     var playButtonUuid;
     var pauseButtonUuid;
+    var leaveButtonUuid;
     var originalRotation;
     var reorientButtonsInProgress = false;
     var HtmlTimeStamp;
+    var haveLeft = false;
 
     var sourceUrl = Script.resolvePath("videoSync.html" + "?" + Date.now());
     script.preload = function (entityID) {
@@ -56,6 +60,10 @@
             console.log("Yes " + event);
             if (messageData.action == "requestSync") {
                 HtmlTimeStamp = messageData.myTimeStamp;
+                if (haveLeft) {
+                    makeControlButtonsVisible();
+                    haveLeft = false;
+                }
             }
             Messages.sendMessage("videoPlayOnEntity", event);
         }
@@ -76,6 +84,14 @@
             if (messageData.uuid == volumeButtonMinus || messageData.uuid == volumeButtonPlus) {
                 sendMessage(message);
             }
+        } else if (messageData.action == "leave" && messageData.uuid == leaveButtonUuid) {
+            var readyEvent = {
+                action: "videoEnd",
+                sender: "Button"
+            };
+            sendMessage(JSON.stringify(readyEvent));
+            haveLeft = true;
+            makeControlButtonsNotVisible();
         } else if (!hasBeenSynced) {
             console.log(messageData.myTimeStamp + " " + HtmlTimeStamp);
             if (messageData.action == "sync" && messageData.action != "now") {
@@ -124,6 +140,39 @@
             });
 
         }
+
+        Entities.editEntity(leaveButtonUuid, {
+            visible: true,
+            script: leaveButtonUrl
+        });
+    }
+
+    function makeControlButtonsNotVisible() {
+        
+        if (Entities.canRez() == true) {
+
+            Entities.editEntity(videoInterfaceButton, {
+                visible: false,
+                script: ""
+            });
+
+            Entities.editEntity(playButtonUuid, {
+                visible: false,
+                script: ""
+            });
+
+            Entities.editEntity(pauseButtonUuid, {
+                visible: false,
+                script: ""
+            });
+
+        }
+
+
+        Entities.editEntity(leaveButtonUuid, {
+            visible: false,
+            script: ""
+        });
     }
 
     function addButtons() {
@@ -151,7 +200,7 @@
                 modelURL: playButtonFbxUrl,
                 parentID: uuid,
                 position: {
-                    "x": entity.position.x - entity.dimensions.x / 2 - -0.2,
+                    "x": entity.position.x - entity.dimensions.x / 2 - -0.5,
                     "y": entity.position.y - entity.dimensions.y / 2 - 0.2,
                     "z": entity.position.z
                 },
@@ -171,7 +220,7 @@
                 modelURL: pauseButtonURL,
                 parentID: uuid,
                 position: {
-                    "x": entity.position.x - entity.dimensions.x / 2 - -0.5,
+                    "x": entity.position.x - entity.dimensions.x / 2 - -0.8,
                     "y": entity.position.y - entity.dimensions.y / 2 - 0.2,
                     "z": entity.position.z
                 },
@@ -228,6 +277,26 @@
             }
         }, "local");
 
+        leaveButtonUuid = Entities.addEntity({
+            type: "Model",
+            modelURL: leaveButtonFbxUrl,
+            parentID: uuid,
+            position: {
+                "x": entity.position.x - entity.dimensions.x / 2 - -0.2,
+                "y": entity.position.y - entity.dimensions.y / 2 - 0.2,
+                "z": entity.position.z
+            },
+            dimensions: {
+                "x": 0.22840283811092377,
+                "y": 0.22654350101947784,
+                "z": 0.019338179379701614
+            },
+            visible: false,
+            grab: {
+                "grabbable": false,
+            }
+        }, "local");
+
         Entities.editEntity(uuid, {
             rotation: entity.rotation
         });
@@ -272,7 +341,7 @@
 
                     Entities.editEntity(playButtonUuid, {
                         position: {
-                            "x": entity.position.x - entity.dimensions.x / 2 - -0.2,
+                            "x": entity.position.x - entity.dimensions.x / 2 - -0.5,
                             "y": entity.position.y - entity.dimensions.y / 2 - 0.2,
                             "z": entity.position.z
                         }
@@ -280,10 +349,10 @@
 
                     Entities.editEntity(pauseButtonUuid, {
                         position: {
-                            "x": entity.position.x - entity.dimensions.x / 2 - -0.5,
+                            "x": entity.position.x - entity.dimensions.x / 2 - -0.8,
                             "y": entity.position.y - entity.dimensions.y / 2 - 0.2,
                             "z": entity.position.z
-                        }
+                        },
                     });
 
                 }
@@ -299,6 +368,14 @@
                 Entities.editEntity(volumeButtonPlus, {
                     position: {
                         "x": entity.position.x + entity.dimensions.x / 2 - 0.5,
+                        "y": entity.position.y - entity.dimensions.y / 2 - 0.2,
+                        "z": entity.position.z
+                    },
+                });
+
+                Entities.editEntity(leaveButtonUuid, {
+                    position: {
+                        "x": entity.position.x - entity.dimensions.x / 2 - -0.2,
                         "y": entity.position.y - entity.dimensions.y / 2 - 0.2,
                         "z": entity.position.z
                     },
