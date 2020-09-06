@@ -241,6 +241,7 @@
                 type: "Model",
                 modelURL: playButtonFbxUrl,
                 parentID: uuid,
+                triggerable: true,
                 position: {
                     "x": entity.position.x - entity.dimensions.x / 2 - -0.5,
                     "y": entity.position.y - entity.dimensions.y / 2 - 0.2,
@@ -261,6 +262,7 @@
                 type: "Model",
                 modelURL: pauseButtonURL,
                 parentID: uuid,
+                triggerable: true,
                 position: {
                     "x": entity.position.x - entity.dimensions.x / 2 - -0.8,
                     "y": entity.position.y - entity.dimensions.y / 2 - 0.2,
@@ -282,6 +284,7 @@
             type: "Model",
             modelURL: volumeButtonMinusUrl,
             parentID: uuid,
+            triggerable: true,
             position: {
                 "x": entity.position.x + entity.dimensions.x / 2 - 0.2,
                 "y": entity.position.y - entity.dimensions.y / 2 - 0.2,
@@ -300,6 +303,7 @@
             type: "Model",
             modelURL: volumeButtonPlusUrl,
             parentID: uuid,
+            triggerable: true,
             position: {
                 "x": entity.position.x + entity.dimensions.x / 2 - 0.5,
                 "y": entity.position.y - entity.dimensions.y / 2 - 0.2,
@@ -323,6 +327,7 @@
             type: "Model",
             modelURL: leaveButtonFbxUrl,
             parentID: uuid,
+            triggerable: true,
             position: {
                 "x": entity.position.x - entity.dimensions.x / 2 - -0.2,
                 "y": entity.position.y - entity.dimensions.y / 2 - 0.2,
