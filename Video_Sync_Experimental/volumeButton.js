@@ -1,6 +1,7 @@
 (function () {
     var _entity;
     var _entityID;
+    var HasHoveredOverVolumeButton = false;
     this.preload = function (entityID) {
         _entityID = entityID;
         var entity = Entities.getEntityProperties(entityID, ["userData"]);
@@ -8,6 +9,18 @@
     }
 
     this.clickDownOnEntity = function () {
+        sendAction();
+    }
+
+    this.startNearTrigger = function () {
+        sendAction();
+    };
+
+    this.startFarTrigger = function() {        
+        sendAction();
+    };
+
+    function sendAction() {
         var readyEvent = {
             "action": "volumeButton",
             "volume": _entity.Button,
@@ -15,4 +28,18 @@
         };
         Messages.sendMessage("videoPlayOnEntity", JSON.stringify(readyEvent));
     }
+
+    this.hoverOverEntity = function (entityID, mouseEvent) {
+        if (!HasHoveredOverVolumeButton) {
+            var readyEvent = {
+                "action": "HasHoveredOverVolumeButton",
+                "uuid": _entityID
+            };
+            HasHoveredOverVolumeButton = true;
+            Messages.sendMessage("videoPlayOnEntity", JSON.stringify(readyEvent));
+            Script.setTimeout(function() {
+                HasHoveredOverVolumeButton = false;
+            }, 5000);
+        }
+    };
 });
