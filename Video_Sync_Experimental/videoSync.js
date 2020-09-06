@@ -23,9 +23,14 @@
     var originalRotation;
     var reorientButtonsInProgress = false;
     var HtmlTimeStamp;
+    var volumeButtonMinus;
+    var volumeSliderUuid;
+    var HasHoveredOverVolumeButton = false;
     var haveLeft = false;
+    var HasHoveredOverVolumeButtonTimeout;
 
     var sourceUrl = Script.resolvePath("videoSync.html" + "?" + Date.now());
+    var volumeSliderSourceUrl = Script.resolvePath("volumeSlider.html" + "?" + Date.now());
     script.preload = function (entityID) {
         entity = Entities.getEntityProperties(entityID, ["position", "rotation", "dimensions"]);
         _entityID = entityID;
@@ -55,9 +60,8 @@
     });
 
     function onWebEvent(uuid, event) {
-        if (uuid == _uuid) {
+        if (uuid == _uuid || volumeSliderUuid == uuid) {
             messageData = JSON.parse(event);
-            console.log("Yes " + event);
             if (messageData.action == "requestSync") {
                 HtmlTimeStamp = messageData.myTimeStamp;
                 if (haveLeft) {
@@ -65,7 +69,22 @@
                     haveLeft = false;
                 }
             }
-            Messages.sendMessage("videoPlayOnEntity", event);
+            if (messageData.action == "volumeSlider") {
+                sendMessage(event);
+                if (HasHoveredOverVolumeButton) {
+                    Script.clearTimeout(HasHoveredOverVolumeButtonTimeout);
+                    HasHoveredOverVolumeButtonTimeout = Script.setTimeout(function () {
+                        Entities.editEntity(volumeSliderUuid, {
+                            visible: false
+                        });
+                        HasHoveredOverVolumeButton = false;
+                    }, 10000);
+                }
+            } else if (messageData.action == "volumeChanged") {
+                Entities.emitScriptEvent(volumeSliderUuid, event);
+            } else {
+                Messages.sendMessage("videoPlayOnEntity", event);
+            }
         }
     }
 
@@ -84,6 +103,30 @@
             if (messageData.uuid == volumeButtonMinus || messageData.uuid == volumeButtonPlus) {
                 sendMessage(message);
             }
+        } else if (messageData.action == "HasHoveredOverVolumeButton") {
+            if (messageData.uuid == volumeButtonMinus || messageData.uuid == volumeButtonPlus) {
+                if (!HasHoveredOverVolumeButton) {
+                    Entities.editEntity(volumeSliderUuid, {
+                        visible: true
+                    });
+                    HasHoveredOverVolumeButton = true
+                    HasHoveredOverVolumeButtonTimeout = Script.setTimeout(function () {
+                        Entities.editEntity(volumeSliderUuid, {
+                            visible: false
+                        });
+                        HasHoveredOverVolumeButton = false;
+                    }, 10000);
+                } else if (HasHoveredOverVolumeButton) {
+                    Script.clearTimeout(HasHoveredOverVolumeButtonTimeout);
+                    HasHoveredOverVolumeButtonTimeout = Script.setTimeout(function () {
+                        Entities.editEntity(volumeSliderUuid, {
+                            visible: false
+                        });
+                        HasHoveredOverVolumeButton = false;
+                    }, 10000);
+                }
+            }
+
         } else if (messageData.action == "leave" && messageData.uuid == leaveButtonUuid) {
             var readyEvent = {
                 action: "videoEnd",
@@ -93,7 +136,6 @@
             haveLeft = true;
             makeControlButtonsNotVisible();
         } else if (!hasBeenSynced) {
-            console.log(messageData.myTimeStamp + " " + HtmlTimeStamp);
             if (messageData.action == "sync" && messageData.action != "now") {
                 if (messageData.myTimeStamp == HtmlTimeStamp) {
                     sendMessage(message);
@@ -148,7 +190,7 @@
     }
 
     function makeControlButtonsNotVisible() {
-        
+
         if (Entities.canRez() == true) {
 
             Entities.editEntity(videoInterfaceButton, {
@@ -297,6 +339,29 @@
             }
         }, "local");
 
+        volumeSliderUuid = Entities.addEntity({
+            type: "Web",
+            dpi: 8,
+            sourceUrl: volumeSliderSourceUrl,
+            parentID: uuid,
+            visible: false,
+            dimensions: {
+                "x": 1.3687,
+                "y": 0.3429,
+                "z": 0.0010
+            },
+            registrationPoint: {
+                "x": 0.5,
+                "y": 0.5,
+                "z": 0
+            },
+            position: {
+                "x": entity.position.x + entity.dimensions.x / 2 - 1.4,
+                "y": entity.position.y - entity.dimensions.y / 2 - 0.2,
+                "z": entity.position.z
+            }
+        }, "local");
+
         Entities.editEntity(uuid, {
             rotation: entity.rotation
         });
@@ -381,6 +446,14 @@
                     },
                 });
 
+                Entities.editEntity(volumeSliderUuid, {
+                    position: {
+                        "x": entity.position.x + entity.dimensions.x / 2 - 1.4,
+                        "y": entity.position.y - entity.dimensions.y / 2 - 0.2,
+                        "z": entity.position.z
+                    },
+                });
+
                 Entities.editEntity(uuid, {
                     position: entity.position,
                     rotation: entity.rotation,
@@ -402,10 +475,14 @@
         }
         Entities.deleteEntity(volumeButtonPlus);
         Entities.deleteEntity(volumeButtonMinus);
+        Entities.deleteEntity(volumeSliderUuid);
         Messages.unsubscribe("videoPlayOnEntity");
         Entities.deleteEntity(uuid);
         Messages.messageReceived.disconnect(onMessageReceived);
         Entities.webEventReceived.disconnect(onWebEvent);
         Script.clearInterval(self.intervalID);
+        if (HasHoveredOverVolumeButton) {
+            Script.clearTimeout(HasHoveredOverVolumeButtonTimeout);
+        }
     }
 });
