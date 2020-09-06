@@ -7,12 +7,10 @@ Menu.addMenuItem({
     menuItemName: "Accept Requests",
     isCheckable: true
 });
-var sessionUUID = MyAvatar.sessionUUID;
 var tablet = Tablet.getTablet("com.highfidelity.interface.tablet.system");
 var button = tablet.addButton({
     text: "Drop Net"
 });
-var sessionUUID = MyAvatar.sessionUUID;
 var approvedList = [];
 var approvedListNumber = 0;
 function onMenuItemEvent(menuItem) {
@@ -30,17 +28,15 @@ function onMenuItemEvent(menuItem) {
 }
 
 var oldUuids = [
-    {
-    }
 ];
 var numberToAssignUuidInArray = 0;
 var entityPosition;
 var entityMessage;
-var myDisplayName;
 
 function onClicked() {
     var loc = Window.prompt("Enter url", "");
     if (loc) {
+        var sessionUUID = MyAvatar.sessionUUID;
         Messages.sendMessage("webMe", JSON.stringify({
             sourceUrl: loc,
             displayName: MyAvatar.displayName,
@@ -56,23 +52,22 @@ function onMessageReceived(channel, message, sender, localOnly) {
         return;
     }
     entityMessage = JSON.parse(message);
-    displayName = entityMessage.displayName;
-    myDisplayName = MyAvatar.displayName;
-    if (displayName == myDisplayName) {
-        addWeb();
+    if (entityMessage.displayName == MyAvatar.displayName && MyAvatar.sessionUUID == entityMessage.sessionUUID) {
+        addWeb(entityMessage.displayName);
     } else if (approvedList.indexOf(entityMessage.sessionUUID) !== -1) {
         if (Menu.isOptionChecked("Accept Requests")) {
-            addWeb();
+            addWeb(entityMessage.displayName);
         }
     } else {
         if (Menu.isOptionChecked("Accept Requests")) {
-            var confirm = Window.confirm("Would you like to view web entity from " + displayName + "?");
+            var confirm = Window.confirm("Would you like to view web entity from " + entityMessage.displayName + "?");
             if (confirm == true) {
                 approvedList[approvedListNumber] = entityMessage.sessionUUID;
                 approvedListNumber++;
-                addWeb();
+                addWeb(entityMessage.displayName);
             }
-            function addWeb() {
+
+            function addWeb(displayName) {
                 entityID = Entities.addEntity({
                     type: "Web",
                     sourceUrl: entityMessage.sourceUrl,
@@ -85,12 +80,13 @@ function onMessageReceived(channel, message, sender, localOnly) {
                     position: entityMessage.position
                 }, "local");
 
+                var NumberOfWebEntity = oldUuids.length + 1
                 var oldUuidsEntity = {
-                    displayName: displayName + " " + entityMessage.sourceUrl,
+                    displayName: displayName + " " + entityMessage.sourceUrl + " " + NumberOfWebEntity,
                     entityID: entityID
                 };
                 oldUuids[numberToAssignUuidInArray] = oldUuidsEntity;
-                Menu.addMenuItem("Drop Net > Clear one browser", displayName + " " + entityMessage.sourceUrl);
+                Menu.addMenuItem("Drop Net > Clear one browser", displayName + " " + entityMessage.sourceUrl + " " + oldUuids.length);
                 numberToAssignUuidInArray++;
             }
         }
@@ -113,8 +109,6 @@ function ClearAllBrowsers() {
         Menu.removeMenuItem("Drop Net > Clear one browser", oldUuids[i].displayName);
     }
     oldUuids = [
-        {
-        }
     ];
     numberToAssignUuidInArray = 0;
 }
@@ -127,3 +121,6 @@ Script.scriptEnding.connect(function () {
     Menu.removeMenuItem("Drop Net", "Clear all browsers");
     Menu.removeMenu("Drop Net");
 });
+
+var UUID = MyAvatar.sessionUUID;
+console.log(UUID);
