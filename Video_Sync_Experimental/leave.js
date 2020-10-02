@@ -7,6 +7,18 @@
     };
 
     this.clickDownOnEntity = function () {
+        sendAction();
+    }
+
+    this.startNearTrigger = function () {
+        sendAction();
+    };
+
+    this.startFarTrigger = function() {        
+        sendAction();
+    };
+
+    function sendAction() {
         var readyEvent = {
             "action": "leave",
             "uuid": _entityID,

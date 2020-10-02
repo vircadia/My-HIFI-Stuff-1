@@ -76,6 +76,18 @@
             display: none !important;
             -webkit-appearance: none;
         }
+
+        div.volumeIs {
+            position: absolute;
+            top: 20px;
+        }
+
+        strong {
+            background: rgba(0, 0, 0, 0.5);
+            display: inline-block;
+            border-radius: 16px;
+            padding: 0 20px;
+        }
     </style>
 
 </head>
@@ -84,6 +96,8 @@
 
     <body bgcolor="#333333">
         <div id="video-container" onclick="videoPlayerOnClicked()">
+            <div class="volumeIs" id="volumeIs">
+            </div>
             <video id="v1" poster="assets/play_btn.png" controls autoplay>
                 <source id="mp4_src" src=" " type="video/webm">
             </video>
@@ -98,6 +112,8 @@
             var requestSyncWaiting;
             var VideoPlayingStatus;
             var isLoopingStartAtBeginning = false;
+            var volumeVisible = false;
+            var volumeTimeout;
 
             function videoPlayerOnClicked() {
                 if (firstTime === "yes") {
@@ -212,11 +228,49 @@
                 } else if (messageData.action == "volumeButton") {
                     v1 = document.getElementById('v1');
                     var volume = v1.volume;
+                    var chosenVolume;
                     if (messageData.volume == "up") {
-                        v1.volume = volume + 0.1;
+                        if (v1.volume.toFixed(1) == 1) {
+                            chosenVolume = 1;
+                        } else {
+                            chosenVolume = volume + 0.1;
+                        }
+                        v1.volume = chosenVolume.toFixed(1);
                     } else if (messageData.volume == "down") {
-                        v1.volume = volume - 0.1;
+                        if (volume - 0.1 < 0.1) {
+                            chosenVolume = 0;
+                        } else {
+                            chosenVolume = volume - 0.1;
+                        }
+                        v1.volume = chosenVolume.toFixed(1);
                     }
+                    var readyEvent = {
+                        "action": "volumeChanged",
+                        "volume": v1.volume.toFixed(1)
+                    };
+                    EventBridge.emitWebEvent(JSON.stringify(readyEvent));
+                    document.getElementById("volumeIs").innerHTML = "<h1 style=\"color:#f5f5f5;\"><strong>Volume: " + v1.volume.toFixed(1); + "</strong></h1>";
+                    if (volumeVisible) {
+                        clearTimeout(volumeTimeout);
+                    }
+                    volumeVisible = true;
+                    volumeTimeout = setTimeout(() => {
+                        volumeVisible = false;
+                        document.getElementById("volumeIs").innerHTML = "";
+                    }, 5000);
+
+                } else if (messageData.action == "volumeSlider") {
+                    v1 = document.getElementById('v1');
+                    v1.volume = parseFloat(messageData.volume);
+                    document.getElementById("volumeIs").innerHTML = "<h1 style=\"color:#f5f5f5;\"><strong>Volume: " + parseFloat(messageData.volume); + "</strong></h1>";
+                    if (volumeVisible) {
+                        clearTimeout(volumeTimeout);
+                    }
+                    volumeVisible = true;
+                    volumeTimeout = setTimeout(() => {
+                        volumeVisible = false;
+                        document.getElementById("volumeIs").innerHTML = "";
+                    }, 5000);
                 } else if (messageData.action == "RequestVideoLengthAndTimeStamp") {
                     var v1 = document.getElementById('v1');
                     var readyEvent = {
