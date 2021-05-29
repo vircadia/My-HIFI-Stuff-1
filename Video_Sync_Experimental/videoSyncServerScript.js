@@ -32,10 +32,10 @@
             newVideoSender = messageData.myTimeStamp;
             timeStamp = messageData.timeStamp;
             videoUrl = messageData.videoUrl;
-            if (intervalIsRunning == "yes") {
+            if (intervalIsRunning === true) {
                 Script.clearInterval(timeStampInterval);
             }
-            intervalIsRunning = "yes";
+            intervalIsRunning = true;
             ping();
             var readyEvent = {
                 action: "requestVideoPlayingStatusServerReply",
@@ -49,10 +49,10 @@
 
         } else if (messageData.action == "play") {
             timeStamp = messageData.timeStamp;
-            if (intervalIsRunning == "yes") {
+            if (intervalIsRunning === true) {
                 Script.clearInterval(timeStampInterval);
             }
-            intervalIsRunning = "yes";
+            intervalIsRunning = true;
             videoPlaying = true;
             ping();
             var readyEvent = {
@@ -80,7 +80,7 @@
                     };
                     var message = JSON.stringify(readyEvent);
                     Messages.sendMessage("videoPlayOnEntity", message);
-                    intervalIsRunning = "yes";
+                    intervalIsRunning = true;
                     videoPlaying = true;
                     timeStamp = 0;
                     ping();
@@ -197,7 +197,7 @@
     this.unload = function () {
         Messages.unsubscribe("videoPlayOnEntity");
         Messages.messageReceived.disconnect(onMessageReceived);
-        if (intervalIsRunning == "yes") {
+        if (intervalIsRunning === true) {
             Script.clearInterval(timeStampInterval);
         }
         if (pause == "stop") {
